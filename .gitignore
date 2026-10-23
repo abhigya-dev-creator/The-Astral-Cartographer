@@ -1,0 +1,18 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# local leftovers that are not part of the project
+*.zip
+/server/
+/server.env.example
+*.code-workspace
+
+# build output and dependencies
+node_modules/
+dist/
+*.tsbuildinfo
+
+# test fixtures deliberately contain dist/ and node_modules/ folders
+!/astral-cartographer/server/test-fixtures/**

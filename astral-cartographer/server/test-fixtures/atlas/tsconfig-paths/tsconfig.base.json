@@ -1,0 +1,4 @@
+{
+  // comments are allowed in tsconfig
+  "compilerOptions": { "baseUrl": ".", "paths": { "@app/*": ["src/*"], "@lib": ["src/lib/index.ts"] } },
+}

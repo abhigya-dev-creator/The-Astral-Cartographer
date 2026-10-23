@@ -1,0 +1,21 @@
+{
+  // Type-checks the client's pure-logic tests. Run from client/:
+  //   ../server/node_modules/.bin/tsc -p tests/tsconfig.json
+  //   ../server/node_modules/.bin/tsx --test tests/*.test.ts
+  // No test dependency is added to the client: the server's existing tsx/node:test runner is reused.
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": false,
+    "typeRoots": ["../../server/node_modules/@types"],
+    "types": ["node"]
+  },
+  "include": ["./*.ts"]
+}

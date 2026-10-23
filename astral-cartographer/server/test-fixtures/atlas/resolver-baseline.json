@@ -1,0 +1,463 @@
+{
+ "assets-and-traps": [
+  {
+   "importer": "src/App.tsx",
+   "specifier": "./App.css",
+   "resolution": {
+    "kind": "local",
+    "target": "src/App.css",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/App.tsx",
+   "specifier": "./logo.svg",
+   "resolution": {
+    "kind": "local",
+    "target": "src/logo.svg",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/App.tsx",
+   "specifier": "./config.json",
+   "resolution": {
+    "kind": "local",
+    "target": "src/config.json",
+    "via": "relative"
+   }
+  }
+ ],
+ "circular": [
+  {
+   "importer": "src/a.ts",
+   "specifier": "./b",
+   "resolution": {
+    "kind": "local",
+    "target": "src/b.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/b.ts",
+   "specifier": "./c",
+   "resolution": {
+    "kind": "local",
+    "target": "src/c.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/c.ts",
+   "specifier": "./a",
+   "resolution": {
+    "kind": "local",
+    "target": "src/a.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/d.ts",
+   "specifier": "./e",
+   "resolution": {
+    "kind": "local",
+    "target": "src/e.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/e.ts",
+   "specifier": "./d",
+   "resolution": {
+    "kind": "local",
+    "target": "src/d.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/leaf.ts",
+   "specifier": "./a",
+   "resolution": {
+    "kind": "local",
+    "target": "src/a.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "dynamic-imports": [
+  {
+   "importer": "src/router.ts",
+   "specifier": "./pages/Lazy",
+   "resolution": {
+    "kind": "local",
+    "target": "src/pages/Lazy.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/router.ts",
+   "specifier": "./pages/Static",
+   "resolution": {
+    "kind": "local",
+    "target": "src/pages/Static.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "ext-guessing": [
+  {
+   "importer": "src/main.ts",
+   "specifier": "./b",
+   "resolution": {
+    "kind": "local",
+    "target": "src/b.tsx",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "./c",
+   "resolution": {
+    "kind": "local",
+    "target": "src/c.js",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "./data",
+   "resolution": {
+    "kind": "local",
+    "target": "src/data.json",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "./d.js",
+   "resolution": {
+    "kind": "local",
+    "target": "src/d.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "external": [
+  {
+   "importer": "src/main.ts",
+   "specifier": "react",
+   "resolution": {
+    "kind": "external",
+    "name": "react"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "lodash/get",
+   "resolution": {
+    "kind": "external",
+    "name": "lodash"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "@scope/ui/button",
+   "resolution": {
+    "kind": "external",
+    "name": "@scope/ui"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "node:fs",
+   "resolution": {
+    "kind": "builtin",
+    "name": "fs"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "path",
+   "resolution": {
+    "kind": "builtin",
+    "name": "path"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "https://cdn.example.com/lib.js",
+   "resolution": {
+    "kind": "url"
+   }
+  }
+ ],
+ "index-files": [
+  {
+   "importer": "src/app.ts",
+   "specifier": "./components",
+   "resolution": {
+    "kind": "local",
+    "target": "src/components/index.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/app.ts",
+   "specifier": "./utils/",
+   "resolution": {
+    "kind": "local",
+    "target": "src/utils/index.js",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/components/index.ts",
+   "specifier": "./Button",
+   "resolution": {
+    "kind": "local",
+    "target": "src/components/Button.tsx",
+    "via": "relative"
+   }
+  }
+ ],
+ "monorepo": [
+  {
+   "importer": "packages/app/src/main.tsx",
+   "specifier": "@acme/ui",
+   "resolution": {
+    "kind": "local",
+    "target": "packages/ui/src/index.ts",
+    "via": "workspace"
+   }
+  },
+  {
+   "importer": "packages/app/src/main.tsx",
+   "specifier": "@acme/core",
+   "resolution": {
+    "kind": "local",
+    "target": "packages/core/src/main.ts",
+    "via": "workspace"
+   }
+  },
+  {
+   "importer": "packages/app/src/main.tsx",
+   "specifier": "@acme/core/util",
+   "resolution": {
+    "kind": "local",
+    "target": "packages/core/src/util.ts",
+    "via": "workspace"
+   }
+  },
+  {
+   "importer": "packages/app/src/main.tsx",
+   "specifier": "react",
+   "resolution": {
+    "kind": "external",
+    "name": "react"
+   }
+  },
+  {
+   "importer": "packages/ui/src/index.ts",
+   "specifier": "./Card",
+   "resolution": {
+    "kind": "local",
+    "target": "packages/ui/src/Card.tsx",
+    "via": "relative"
+   }
+  }
+ ],
+ "reexports": [
+  {
+   "importer": "src/index.ts",
+   "specifier": "./a",
+   "resolution": {
+    "kind": "local",
+    "target": "src/a.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/index.ts",
+   "specifier": "./b",
+   "resolution": {
+    "kind": "local",
+    "target": "src/b.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/index.ts",
+   "specifier": "./c",
+   "resolution": {
+    "kind": "local",
+    "target": "src/c.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/index.ts",
+   "specifier": "./types",
+   "resolution": {
+    "kind": "local",
+    "target": "src/types.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "require": [
+  {
+   "importer": "lib/legacy.ts",
+   "specifier": "fs",
+   "resolution": {
+    "kind": "builtin",
+    "name": "fs"
+   }
+  },
+  {
+   "importer": "lib/legacy.ts",
+   "specifier": "./util.cjs",
+   "resolution": {
+    "kind": "local",
+    "target": "lib/util.cjs",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "lib/main.cjs",
+   "specifier": "./util",
+   "resolution": {
+    "kind": "local",
+    "target": "lib/util.cjs",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "lib/main.cjs",
+   "specifier": "path",
+   "resolution": {
+    "kind": "builtin",
+    "name": "path"
+   }
+  },
+  {
+   "importer": "lib/main.cjs",
+   "specifier": "lodash/get",
+   "resolution": {
+    "kind": "external",
+    "name": "lodash"
+   }
+  }
+ ],
+ "skip-rules": [
+  {
+   "importer": "src/main.ts",
+   "specifier": "./vendor.min.js",
+   "resolution": {
+    "kind": "local",
+    "target": "src/vendor.min.js",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "./types",
+   "resolution": {
+    "kind": "local",
+    "target": "src/types.d.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "syntax-error": [
+  {
+   "importer": "src/broken.ts",
+   "specifier": "./ok",
+   "resolution": {
+    "kind": "local",
+    "target": "src/ok.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/user.ts",
+   "specifier": "./ok",
+   "resolution": {
+    "kind": "local",
+    "target": "src/ok.ts",
+    "via": "relative"
+   }
+  },
+  {
+   "importer": "src/user.ts",
+   "specifier": "./broken",
+   "resolution": {
+    "kind": "local",
+    "target": "src/broken.ts",
+    "via": "relative"
+   }
+  }
+ ],
+ "tsconfig-paths": [
+  {
+   "importer": "src/main.ts",
+   "specifier": "@app/helpers/helper",
+   "resolution": {
+    "kind": "local",
+    "target": "src/helpers/helper.ts",
+    "via": "alias"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "@lib",
+   "resolution": {
+    "kind": "local",
+    "target": "src/lib/index.ts",
+    "via": "alias"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "src/config",
+   "resolution": {
+    "kind": "local",
+    "target": "src/config.ts",
+    "via": "baseUrl"
+   }
+  }
+ ],
+ "unresolved": [
+  {
+   "importer": "src/main.ts",
+   "specifier": "./missing",
+   "resolution": {
+    "kind": "unresolved",
+    "reason": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "../outside/repo",
+   "resolution": {
+    "kind": "unresolved",
+    "reason": "relative"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "@/not-configured",
+   "resolution": {
+    "kind": "unresolved",
+    "reason": "alias"
+   }
+  },
+  {
+   "importer": "src/main.ts",
+   "specifier": "#internal/thing",
+   "resolution": {
+    "kind": "unresolved",
+    "reason": "alias"
+   }
+  }
+ ]
+}

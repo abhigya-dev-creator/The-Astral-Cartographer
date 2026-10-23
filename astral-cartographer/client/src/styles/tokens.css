@@ -1,0 +1,44 @@
+:root{
+  --color-bg:#030712;
+  --color-midnight:#0A1020;
+  --color-text:#EAF0FF;
+  --color-text-heading:#F3F6FF;
+  --color-text-secondary:#B8BBCB;
+  --color-text-supporting:#A7B4CC;
+  --color-text-placeholder:#77839C;
+  --color-link:#A99AFF;
+  --color-violet:#8B78FF;
+  --color-stellar-peach:#DDB39C;
+  --color-blue:#386BFF;
+  --color-cyan:#37D9FF;
+  --color-green:#43D9A3;
+  --color-amber:#FFD166;
+  --color-orange:#FFAD66;
+  --color-red:#FF717A;
+  --gradient-primary:linear-gradient(135deg,#386BFF 0%,#8755FF 100%);
+  --gradient-hero:linear-gradient(105deg,#386BFF 0%,#6655FF 42%,#A64DFF 70%,#F39A54 100%);
+  --gradient-button:linear-gradient(105deg,#386BFF 0%,#6655FF 42%,#A64DFF 70%,#F39A54 100%);
+  --gradient-active-nav:linear-gradient(105deg,rgba(56,107,255,.24) 0%,rgba(135,85,255,.15) 100%);
+  --surface-sidebar:rgba(5,12,28,.94);
+  --surface-header:rgba(3,7,18,.72);
+  --surface-card:rgba(7,12,27,0.82);
+  --surface-card-inner:rgba(10,22,46,.76);
+  --surface-input:rgba(4,8,19,0.68);
+  --border-subtle:1px solid rgba(100,140,255,.10);
+  --border-card:1px solid rgba(135,155,255,0.22);
+  --border-input:1px solid rgba(135,155,255,0.20);
+  --radius-sm:8px;
+  --radius-control:9px;
+  --radius-card:18px;
+  --radius-auth:18px;
+  --radius-pill:999px;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+  --font-sans:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
+  --sidebar-width:248px;--header-height:64px;--page-padding-x:32px;
+  --blur-card:18px;
+  --shadow-card:0 18px 60px rgba(0,0,0,0.35);
+  --shadow-primary:0 0 16px rgba(70,94,255,0.24), 0 0 30px rgba(135,85,255,0.15);
+  --duration-fast:120ms;--duration-normal:160ms;--duration-slow:300ms;
+}
+@media (max-width:1366px){:root{--sidebar-width:240px;--page-padding-x:24px}}
+@media (max-width:1280px){:root{--sidebar-width:224px}}

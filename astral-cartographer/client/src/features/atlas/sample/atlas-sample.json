@@ -1,0 +1,4309 @@
+{
+ "version": 1,
+ "repo": {
+  "owner": "abhigya-dev-creator",
+  "name": "The-Astral-Cartographer",
+  "branch": "main",
+  "commitSha": "6d10be60c347c91df1a07af13f40576aab06657a",
+  "source": "github",
+  "analyzedAt": "2026-10-23T09:09:47.955Z"
+ },
+ "files": [
+  {
+   "path": "astral-cartographer/.gitignore",
+   "name": ".gitignore",
+   "ext": "",
+   "folder": "astral-cartographer",
+   "size": 90,
+   "lines": 8,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/.env.example",
+   "name": ".env.example",
+   "ext": ".example",
+   "folder": "astral-cartographer/client",
+   "size": 575,
+   "lines": 11,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/.gitignore",
+   "name": ".gitignore",
+   "ext": "",
+   "folder": "astral-cartographer/client",
+   "size": 386,
+   "lines": 31,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/index.html",
+   "name": "index.html",
+   "ext": ".html",
+   "folder": "astral-cartographer/client",
+   "size": 276,
+   "lines": 4,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/package-lock.json",
+   "name": "package-lock.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/client",
+   "size": 68823,
+   "lines": 1974,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/package.json",
+   "name": "package.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/client",
+   "size": 548,
+   "lines": 1,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/public/assets/home-cosmic-bg.jpg",
+   "name": "home-cosmic-bg.jpg",
+   "ext": ".jpg",
+   "folder": "astral-cartographer/client/public/assets",
+   "size": 345758,
+   "lines": 0,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/public/assets/opening-galaxy-2.webp",
+   "name": "opening-galaxy-2.webp",
+   "ext": ".webp",
+   "folder": "astral-cartographer/client/public/assets",
+   "size": 504876,
+   "lines": 0,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/public/assets/opening-galaxy-new.jpg",
+   "name": "opening-galaxy-new.jpg",
+   "ext": ".jpg",
+   "folder": "astral-cartographer/client/public/assets",
+   "size": 415580,
+   "lines": 0,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/public/assets/opening-galaxy.webp",
+   "name": "opening-galaxy.webp",
+   "ext": ".webp",
+   "folder": "astral-cartographer/client/public/assets",
+   "size": 261452,
+   "lines": 0,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/src/App.tsx",
+   "name": "App.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src",
+   "size": 1897,
+   "lines": 31,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "App",
+     "line": 11,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 1,
+   "tokens": 323
+  },
+  {
+   "path": "astral-cartographer/client/src/components/AppShell.tsx",
+   "name": "AppShell.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components",
+   "size": 11607,
+   "lines": 251,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "AppShell",
+     "line": 18,
+     "kind": "function"
+    },
+    {
+     "name": "handleClickOutside",
+     "line": 38,
+     "kind": "function"
+    },
+    {
+     "name": "handleSignOut",
+     "line": 51,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 18,
+   "tokens": 1678
+  },
+  {
+   "path": "astral-cartographer/client/src/components/Logo.tsx",
+   "name": "Logo.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components",
+   "size": 1276,
+   "lines": 27,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "LogoIcon",
+     "line": 1,
+     "kind": "function"
+    },
+    {
+     "name": "Brand",
+     "line": 20,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "Brand",
+    "LogoIcon"
+   ],
+   "complexity": 1,
+   "tokens": 314
+  },
+  {
+   "path": "astral-cartographer/client/src/components/ProtectedRoute.tsx",
+   "name": "ProtectedRoute.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components",
+   "size": 1452,
+   "lines": 48,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "ProtectedRoute",
+     "line": 4,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 3,
+   "tokens": 237
+  },
+  {
+   "path": "astral-cartographer/client/src/components/StarNetwork.tsx",
+   "name": "StarNetwork.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components",
+   "size": 3021,
+   "lines": 78,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "StarNetwork",
+     "line": 70,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 1,
+   "tokens": 599
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "name": "ArchitecturalHealth.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 7952,
+   "lines": 179,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "IssueItem",
+     "line": 16,
+     "kind": "function"
+    },
+    {
+     "name": "SeverityGroup",
+     "line": 57,
+     "kind": "function"
+    },
+    {
+     "name": "RuleRow",
+     "line": 81,
+     "kind": "function"
+    },
+    {
+     "name": "ArchitecturalHealth",
+     "line": 113,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 33,
+   "tokens": 1884
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "name": "DependencyOverview.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 3968,
+   "lines": 94,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "StatRow",
+     "line": 29,
+     "kind": "function"
+    },
+    {
+     "name": "DependencyOverview",
+     "line": 52,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 10,
+   "tokens": 873
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/ExploreCards.tsx",
+   "name": "ExploreCards.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 3862,
+   "lines": 87,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "ExploreCards",
+     "line": 14,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 1,
+   "tokens": 676
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "name": "ImportPanel.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 13518,
+   "lines": 374,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "tabStyle",
+     "line": 36,
+     "kind": "function"
+    },
+    {
+     "name": "validateZip",
+     "line": 54,
+     "kind": "function"
+    },
+    {
+     "name": "ImportPanel",
+     "line": 63,
+     "kind": "function"
+    },
+    {
+     "name": "switchTab",
+     "line": 95,
+     "kind": "function"
+    },
+    {
+     "name": "selectZip",
+     "line": 100,
+     "kind": "function"
+    },
+    {
+     "name": "handleSubmitGitHub",
+     "line": 113,
+     "kind": "function"
+    },
+    {
+     "name": "handleSubmitZip",
+     "line": 132,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "AnalysisProgress",
+    "ImportNotice",
+    "ImportPrefill",
+    "default"
+   ],
+   "complexity": 40,
+   "tokens": 2509
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/LanguageSupport.tsx",
+   "name": "LanguageSupport.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 8475,
+   "lines": 181,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "buildRows",
+     "line": 22,
+     "kind": "function"
+    },
+    {
+     "name": "levelFromLists",
+     "line": 25,
+     "kind": "function"
+    },
+    {
+     "name": "formatShare",
+     "line": 54,
+     "kind": "function"
+    },
+    {
+     "name": "LanguageSupport",
+     "line": 60,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 43,
+   "tokens": 1861
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "name": "RecentRepositories.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 7245,
+   "lines": 181,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "RepositoryStatusBadge",
+     "line": 9,
+     "kind": "function"
+    },
+    {
+     "name": "RecentRepositories",
+     "line": 41,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "RepositoryStatusBadge",
+    "default"
+   ],
+   "complexity": 27,
+   "tokens": 1301
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "name": "RepositoryOverview.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 13288,
+   "lines": 333,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "MetricTile",
+     "line": 25,
+     "kind": "function"
+    },
+    {
+     "name": "functionKindsTooltip",
+     "line": 79,
+     "kind": "function"
+    },
+    {
+     "name": "RepositoryOverview",
+     "line": 95,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 62,
+   "tokens": 2567
+  },
+  {
+   "path": "astral-cartographer/client/src/components/home/ui.tsx",
+   "name": "ui.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/components/home",
+   "size": 11257,
+   "lines": 341,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "GithubIcon",
+     "line": 45,
+     "kind": "function"
+    },
+    {
+     "name": "Panel",
+     "line": 57,
+     "kind": "function"
+    },
+    {
+     "name": "Badge",
+     "line": 90,
+     "kind": "function"
+    },
+    {
+     "name": "InfoTip",
+     "line": 117,
+     "kind": "function"
+    },
+    {
+     "name": "Spinner",
+     "line": 132,
+     "kind": "function"
+    },
+    {
+     "name": "Notice",
+     "line": 143,
+     "kind": "function"
+    },
+    {
+     "name": "EmptyState",
+     "line": 193,
+     "kind": "function"
+    },
+    {
+     "name": "partialTooltip",
+     "line": 213,
+     "kind": "function"
+    },
+    {
+     "name": "MetricValue",
+     "line": 223,
+     "kind": "function"
+    },
+    {
+     "name": "PartialBadge",
+     "line": 254,
+     "kind": "function"
+    },
+    {
+     "name": "ConfidenceBadge",
+     "line": 262,
+     "kind": "function"
+    },
+    {
+     "name": "StageProgress",
+     "line": 281,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "Badge",
+    "ConfidenceBadge",
+    "EmptyState",
+    "GithubIcon",
+    "InfoTip",
+    "MetricValue",
+    "Notice",
+    "Panel",
+    "PartialBadge",
+    "Spinner",
+    "StageProgress",
+    "TONES",
+    "Tone",
+    "monoStyle",
+    "panelStyle",
+    "sectionLabelStyle"
+   ],
+   "complexity": 26,
+   "tokens": 2043
+  },
+  {
+   "path": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "name": "AuthContext.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/context",
+   "size": 9377,
+   "lines": 319,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "AuthProvider",
+     "line": 24,
+     "kind": "function"
+    },
+    {
+     "name": "clearError",
+     "line": 63,
+     "kind": "function"
+    },
+    {
+     "name": "signInWithGithub",
+     "line": 65,
+     "kind": "function"
+    },
+    {
+     "name": "signInWithGoogle",
+     "line": 95,
+     "kind": "function"
+    },
+    {
+     "name": "signInWithEmail",
+     "line": 129,
+     "kind": "function"
+    },
+    {
+     "name": "signUpWithEmail",
+     "line": 159,
+     "kind": "function"
+    },
+    {
+     "name": "resetPassword",
+     "line": 196,
+     "kind": "function"
+    },
+    {
+     "name": "resendVerification",
+     "line": 223,
+     "kind": "function"
+    },
+    {
+     "name": "updatePassword",
+     "line": 250,
+     "kind": "function"
+    },
+    {
+     "name": "signOut",
+     "line": 276,
+     "kind": "function"
+    },
+    {
+     "name": "useAuth",
+     "line": 313,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "AuthProvider",
+    "useAuth"
+   ],
+   "complexity": 37,
+   "tokens": 1778
+  },
+  {
+   "path": "astral-cartographer/client/src/context/repositoryStore.ts",
+   "name": "repositoryStore.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/context",
+   "size": 1676,
+   "lines": 44,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "useRepositoryStore"
+   ],
+   "complexity": 7,
+   "tokens": 303
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "name": "analysisFormat.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 6225,
+   "lines": 140,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "formatRelativeTime",
+     "line": 3,
+     "kind": "function"
+    },
+    {
+     "name": "formatDateTime",
+     "line": 23,
+     "kind": "function"
+    },
+    {
+     "name": "formatNumber",
+     "line": 30,
+     "kind": "function"
+    },
+    {
+     "name": "isAvailable",
+     "line": 34,
+     "kind": "function"
+    },
+    {
+     "name": "shortSha",
+     "line": 38,
+     "kind": "function"
+    },
+    {
+     "name": "getLanguageColor",
+     "line": 42,
+     "kind": "function"
+    },
+    {
+     "name": "humanizeKey",
+     "line": 68,
+     "kind": "function"
+    },
+    {
+     "name": "parseGitHubUrl",
+     "line": 88,
+     "kind": "function"
+    },
+    {
+     "name": "sanitizeProjectName",
+     "line": 100,
+     "kind": "function"
+    },
+    {
+     "name": "revisionLabel",
+     "line": 106,
+     "kind": "function"
+    },
+    {
+     "name": "definitionFor",
+     "line": 136,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "ANALYSIS_STAGES",
+    "DEFAULT_NA_REASON",
+    "MAX_ZIP_BYTES",
+    "definitionFor",
+    "formatDateTime",
+    "formatNumber",
+    "formatRelativeTime",
+    "getLanguageColor",
+    "humanizeKey",
+    "isAvailable",
+    "parseGitHubUrl",
+    "revisionLabel",
+    "sanitizeProjectName",
+    "shortSha"
+   ],
+   "complexity": 33,
+   "tokens": 867
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/api.ts",
+   "name": "api.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 10442,
+   "lines": 336,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "ApiError",
+     "line": 206,
+     "kind": "class"
+    },
+    {
+     "name": "constructor",
+     "line": 208,
+     "kind": "method"
+    },
+    {
+     "name": "getAuthHeaders",
+     "line": 223,
+     "kind": "function"
+    },
+    {
+     "name": "request",
+     "line": 234,
+     "kind": "function"
+    },
+    {
+     "name": "normalizeAnalyzeResult",
+     "line": 253,
+     "kind": "function"
+    },
+    {
+     "name": "getRepositories",
+     "line": 266,
+     "kind": "method"
+    },
+    {
+     "name": "searchRepositories",
+     "line": 274,
+     "kind": "method"
+    },
+    {
+     "name": "getRepositoryDetails",
+     "line": 286,
+     "kind": "method"
+    },
+    {
+     "name": "getRepositoryStatus",
+     "line": 298,
+     "kind": "method"
+    },
+    {
+     "name": "analyzeGitHub",
+     "line": 306,
+     "kind": "method"
+    },
+    {
+     "name": "analyzeZip",
+     "line": 322,
+     "kind": "method"
+    }
+   ],
+   "exports": [
+    "AnalysisDetails",
+    "AnalysisStage",
+    "AnalysisStatus",
+    "AnalysisSummary",
+    "AnalyzeResult",
+    "ApiError",
+    "IAnalysisLanguage",
+    "IAnalysisMetrics",
+    "IArchitecturalIssue",
+    "ICoverage",
+    "ICoverageRule",
+    "IDependencyEdge",
+    "IDependencyMetrics",
+    "IFunctionKinds",
+    "ILanguageSupport",
+    "ISupportStatus",
+    "IssueConfidence",
+    "LanguageLevel",
+    "RepositoryDetails",
+    "RepositoryStatus",
+    "RepositorySummary",
+    "SupportStatusLevel",
+    "api"
+   ],
+   "complexity": 14,
+   "tokens": 1610
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/backgrounds.ts",
+   "name": "backgrounds.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 328,
+   "lines": 6,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "BACKGROUNDS"
+   ],
+   "complexity": 1,
+   "tokens": 38
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/constellation.ts",
+   "name": "constellation.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 8194,
+   "lines": 119,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "clamp",
+     "line": 7,
+     "kind": "function"
+    },
+    {
+     "name": "ease",
+     "line": 8,
+     "kind": "function"
+    },
+    {
+     "name": "rng",
+     "line": 9,
+     "kind": "function"
+    },
+    {
+     "name": "Constellation",
+     "line": 15,
+     "kind": "class"
+    },
+    {
+     "name": "onResize",
+     "line": 25,
+     "kind": "method"
+    },
+    {
+     "name": "onVis",
+     "line": 26,
+     "kind": "method"
+    },
+    {
+     "name": "constructor",
+     "line": 28,
+     "kind": "method"
+    },
+    {
+     "name": "makeSprite",
+     "line": 42,
+     "kind": "method"
+    },
+    {
+     "name": "resize",
+     "line": 49,
+     "kind": "method"
+    },
+    {
+     "name": "bez",
+     "line": 64,
+     "kind": "method"
+    },
+    {
+     "name": "start",
+     "line": 69,
+     "kind": "method"
+    },
+    {
+     "name": "stop",
+     "line": 70,
+     "kind": "method"
+    },
+    {
+     "name": "frame",
+     "line": 71,
+     "kind": "method"
+    },
+    {
+     "name": "draw",
+     "line": 79,
+     "kind": "method"
+    }
+   ],
+   "exports": [
+    "Constellation",
+    "Link",
+    "NodeDef",
+    "Options",
+    "Tone"
+   ],
+   "complexity": 34,
+   "tokens": 2798
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/supabase.ts",
+   "name": "supabase.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 1579,
+   "lines": 36,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "getMissingSupabaseConfigInstructions",
+     "line": 25,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "getMissingSupabaseConfigInstructions",
+    "isSupabaseConfigured",
+    "supabase"
+   ],
+   "complexity": 8,
+   "tokens": 154
+  },
+  {
+   "path": "astral-cartographer/client/src/lib/verifySupabaseToken.ts",
+   "name": "verifySupabaseToken.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client/src/lib",
+   "size": 2197,
+   "lines": 59,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "requireSupabaseAuth",
+     "line": 32,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "requireSupabaseAuth",
+    "serverSupabase"
+   ],
+   "complexity": 14,
+   "tokens": 247
+  },
+  {
+   "path": "astral-cartographer/client/src/main.tsx",
+   "name": "main.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src",
+   "size": 588,
+   "lines": 16,
+   "kind": "code",
+   "functions": [],
+   "exports": [],
+   "complexity": 1,
+   "tokens": 86
+  },
+  {
+   "path": "astral-cartographer/client/src/pages/Auth.tsx",
+   "name": "Auth.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/pages",
+   "size": 38126,
+   "lines": 1072,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "isUnconfirmedEmail",
+     "line": 26,
+     "kind": "function"
+    },
+    {
+     "name": "isUserAlreadyRegistered",
+     "line": 32,
+     "kind": "function"
+    },
+    {
+     "name": "isInvalidCredentials",
+     "line": 42,
+     "kind": "function"
+    },
+    {
+     "name": "isRateLimit",
+     "line": 51,
+     "kind": "function"
+    },
+    {
+     "name": "Auth",
+     "line": 62,
+     "kind": "function"
+    },
+    {
+     "name": "saveRedirectDestination",
+     "line": 136,
+     "kind": "function"
+    },
+    {
+     "name": "handleGithubLogin",
+     "line": 143,
+     "kind": "function"
+    },
+    {
+     "name": "handleGoogleLogin",
+     "line": 158,
+     "kind": "function"
+    },
+    {
+     "name": "handleResendVerification",
+     "line": 173,
+     "kind": "function"
+    },
+    {
+     "name": "handleOpenResetModal",
+     "line": 196,
+     "kind": "function"
+    },
+    {
+     "name": "handlePasswordResetSubmit",
+     "line": 203,
+     "kind": "function"
+    },
+    {
+     "name": "handleSubmit",
+     "line": 235,
+     "kind": "function"
+    },
+    {
+     "name": "getFriendlyErrorMessage",
+     "line": 311,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 97,
+   "tokens": 5284
+  },
+  {
+   "path": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "name": "AuthCallback.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/pages",
+   "size": 12210,
+   "lines": 319,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "AuthCallback",
+     "line": 8,
+     "kind": "function"
+    },
+    {
+     "name": "handlePasswordUpdate",
+     "line": 90,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 35,
+   "tokens": 1830
+  },
+  {
+   "path": "astral-cartographer/client/src/pages/Home.tsx",
+   "name": "Home.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/pages",
+   "size": 16610,
+   "lines": 418,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "errorMessage",
+     "line": 19,
+     "kind": "function"
+    },
+    {
+     "name": "hintForStatus",
+     "line": 23,
+     "kind": "function"
+    },
+    {
+     "name": "Home",
+     "line": 48,
+     "kind": "function"
+    },
+    {
+     "name": "stopPolling",
+     "line": 62,
+     "kind": "function"
+    },
+    {
+     "name": "tick",
+     "line": 125,
+     "kind": "function"
+    },
+    {
+     "name": "runAnalysis",
+     "line": 147,
+     "kind": "function"
+    },
+    {
+     "name": "poll",
+     "line": 154,
+     "kind": "function"
+    },
+    {
+     "name": "handleAnalyzeGitHub",
+     "line": 220,
+     "kind": "function"
+    },
+    {
+     "name": "matches",
+     "line": 224,
+     "kind": "function"
+    },
+    {
+     "name": "handleAnalyzeZip",
+     "line": 233,
+     "kind": "function"
+    },
+    {
+     "name": "matches",
+     "line": 235,
+     "kind": "function"
+    },
+    {
+     "name": "handleReanalyze",
+     "line": 244,
+     "kind": "function"
+    },
+    {
+     "name": "handleSelect",
+     "line": 265,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 71,
+   "tokens": 2839
+  },
+  {
+   "path": "astral-cartographer/client/src/pages/Opening.tsx",
+   "name": "Opening.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/pages",
+   "size": 2082,
+   "lines": 40,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "Opening",
+     "line": 11,
+     "kind": "function"
+    },
+    {
+     "name": "cls",
+     "line": 23,
+     "kind": "function"
+    },
+    {
+     "name": "go",
+     "line": 24,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 8,
+   "tokens": 516
+  },
+  {
+   "path": "astral-cartographer/client/src/pages/Placeholder.tsx",
+   "name": "Placeholder.tsx",
+   "ext": ".tsx",
+   "folder": "astral-cartographer/client/src/pages",
+   "size": 345,
+   "lines": 9,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "Placeholder",
+     "line": 1,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 1,
+   "tokens": 83
+  },
+  {
+   "path": "astral-cartographer/client/src/styles/global.css",
+   "name": "global.css",
+   "ext": ".css",
+   "folder": "astral-cartographer/client/src/styles",
+   "size": 17613,
+   "lines": 689,
+   "kind": "asset",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/src/styles/tokens.css",
+   "name": "tokens.css",
+   "ext": ".css",
+   "folder": "astral-cartographer/client/src/styles",
+   "size": 1912,
+   "lines": 44,
+   "kind": "asset",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/tsconfig.json",
+   "name": "tsconfig.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/client",
+   "size": 234,
+   "lines": 1,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/client/vite.config.ts",
+   "name": "vite.config.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/client",
+   "size": 191,
+   "lines": 3,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "default"
+   ],
+   "complexity": 1,
+   "tokens": 40
+  },
+  {
+   "path": "astral-cartographer/server/package-lock.json",
+   "name": "package-lock.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/server",
+   "size": 107878,
+   "lines": 2973,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/server/package.json",
+   "name": "package.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/server",
+   "size": 923,
+   "lines": 35,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  },
+  {
+   "path": "astral-cartographer/server/src/config/db.ts",
+   "name": "db.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/config",
+   "size": 2309,
+   "lines": 51,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "getDbMode",
+     "line": 6,
+     "kind": "function"
+    },
+    {
+     "name": "redactUri",
+     "line": 9,
+     "kind": "function"
+    },
+    {
+     "name": "connectDB",
+     "line": 20,
+     "kind": "function"
+    },
+    {
+     "name": "disconnectDB",
+     "line": 47,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "connectDB",
+    "disconnectDB",
+    "getDbMode",
+    "redactUri"
+   ],
+   "complexity": 7,
+   "tokens": 309
+  },
+  {
+   "path": "astral-cartographer/server/src/index.ts",
+   "name": "index.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src",
+   "size": 2901,
+   "lines": 82,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "startServer",
+     "line": 48,
+     "kind": "function"
+    }
+   ],
+   "exports": [],
+   "complexity": 8,
+   "tokens": 565
+  },
+  {
+   "path": "astral-cartographer/server/src/middleware/auth.ts",
+   "name": "auth.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/middleware",
+   "size": 3785,
+   "lines": 83,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "getSupabaseServer",
+     "line": 16,
+     "kind": "function"
+    },
+    {
+     "name": "assertAuthConfigured",
+     "line": 28,
+     "kind": "function"
+    },
+    {
+     "name": "cacheGet",
+     "line": 37,
+     "kind": "function"
+    },
+    {
+     "name": "cacheSet",
+     "line": 44,
+     "kind": "function"
+    },
+    {
+     "name": "requireAuth",
+     "line": 53,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "AuthenticatedRequest",
+    "assertAuthConfigured",
+    "getSupabaseServer",
+    "requireAuth"
+   ],
+   "complexity": 20,
+   "tokens": 651
+  },
+  {
+   "path": "astral-cartographer/server/src/middleware/errorHandler.ts",
+   "name": "errorHandler.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/middleware",
+   "size": 855,
+   "lines": 11,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "errorHandler",
+     "line": 4,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "errorHandler"
+   ],
+   "complexity": 7,
+   "tokens": 173
+  },
+  {
+   "path": "astral-cartographer/server/src/models/Analysis.ts",
+   "name": "Analysis.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/models",
+   "size": 5022,
+   "lines": 125,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "Analysis",
+    "IAnalysis",
+    "IAnalysisFile",
+    "IAnalysisMetrics",
+    "IArchitecturalIssue",
+    "IDependencyEdge",
+    "IDependencyMetrics",
+    "ISupportStatus"
+   ],
+   "complexity": 1,
+   "tokens": 1003
+  },
+  {
+   "path": "astral-cartographer/server/src/models/Repository.ts",
+   "name": "Repository.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/models",
+   "size": 2135,
+   "lines": 57,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "IRepository",
+    "Repository"
+   ],
+   "complexity": 1,
+   "tokens": 397
+  },
+  {
+   "path": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "name": "repositoryRoutes.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/routes",
+   "size": 7850,
+   "lines": 147,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "wrap",
+     "line": 24,
+     "kind": "function"
+    },
+    {
+     "name": "validId",
+     "line": 29,
+     "kind": "function"
+    },
+    {
+     "name": "analyzeRateLimit",
+     "line": 34,
+     "kind": "function"
+    },
+    {
+     "name": "latestAnalyses",
+     "line": 54,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "default"
+   ],
+   "complexity": 28,
+   "tokens": 1612
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/architecture.ts",
+   "name": "architecture.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 13379,
+   "lines": 296,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "issueId",
+     "line": 21,
+     "kind": "function"
+    },
+    {
+     "name": "stronglyConnected",
+     "line": 27,
+     "kind": "function"
+    },
+    {
+     "name": "shortestCycle",
+     "line": 72,
+     "kind": "function"
+    },
+    {
+     "name": "runArchitecturalRules",
+     "line": 96,
+     "kind": "function"
+    },
+    {
+     "name": "importsKnown",
+     "line": 105,
+     "kind": "function"
+    },
+    {
+     "name": "skipTally",
+     "line": 106,
+     "kind": "function"
+    },
+    {
+     "name": "mk",
+     "line": 117,
+     "kind": "function"
+    },
+    {
+     "name": "cyclic",
+     "line": 125,
+     "kind": "function"
+    },
+    {
+     "name": "emit",
+     "line": 132,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "ArchInput",
+    "THRESHOLDS",
+    "runArchitecturalRules",
+    "stronglyConnected"
+   ],
+   "complexity": 92,
+   "tokens": 2932
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/jsParser.ts",
+   "name": "jsParser.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 9960,
+   "lines": 242,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "emptyFunctionKinds",
+     "line": 43,
+     "kind": "function"
+    },
+    {
+     "name": "pluginAttempts",
+     "line": 49,
+     "kind": "function"
+    },
+    {
+     "name": "literalValue",
+     "line": 56,
+     "kind": "function"
+    },
+    {
+     "name": "parseJsTs",
+     "line": 66,
+     "kind": "function"
+    },
+    {
+     "name": "extract",
+     "line": 96,
+     "kind": "function"
+    },
+    {
+     "name": "line",
+     "line": 100,
+     "kind": "function"
+    },
+    {
+     "name": "add",
+     "line": 102,
+     "kind": "function"
+    },
+    {
+     "name": "FunctionDeclaration",
+     "line": 110,
+     "kind": "method"
+    },
+    {
+     "name": "FunctionExpression",
+     "line": 111,
+     "kind": "method"
+    },
+    {
+     "name": "ArrowFunctionExpression",
+     "line": 112,
+     "kind": "method"
+    },
+    {
+     "name": "ClassMethod",
+     "line": 113,
+     "kind": "method"
+    },
+    {
+     "name": "ClassPrivateMethod",
+     "line": 114,
+     "kind": "method"
+    },
+    {
+     "name": "ObjectMethod",
+     "line": 115,
+     "kind": "method"
+    },
+    {
+     "name": "ImportDeclaration",
+     "line": 119,
+     "kind": "method"
+    },
+    {
+     "name": "ExportNamedDeclaration",
+     "line": 126,
+     "kind": "method"
+    },
+    {
+     "name": "ExportAllDeclaration",
+     "line": 129,
+     "kind": "method"
+    },
+    {
+     "name": "TSImportEqualsDeclaration",
+     "line": 132,
+     "kind": "method"
+    },
+    {
+     "name": "TSImportType",
+     "line": 138,
+     "kind": "method"
+    },
+    {
+     "name": "ImportExpression",
+     "line": 142,
+     "kind": "method"
+    },
+    {
+     "name": "CallExpression",
+     "line": 146,
+     "kind": "method"
+    },
+    {
+     "name": "scrubCLike",
+     "line": 169,
+     "kind": "function"
+    },
+    {
+     "name": "blank",
+     "line": 173,
+     "kind": "function"
+    },
+    {
+     "name": "fallbackScan",
+     "line": 204,
+     "kind": "function"
+    },
+    {
+     "name": "lineAt",
+     "line": 207,
+     "kind": "function"
+    },
+    {
+     "name": "push",
+     "line": 215,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "FunctionKinds",
+    "ImportKind",
+    "JsParseResult",
+    "ParseStatus",
+    "RawImport",
+    "emptyFunctionKinds",
+    "parseJsTs",
+    "scrubCLike"
+   ],
+   "complexity": 77,
+   "tokens": 2013
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "name": "languages.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 8832,
+   "lines": 169,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "code",
+     "line": 18,
+     "kind": "function"
+    },
+    {
+     "name": "data",
+     "line": 24,
+     "kind": "function"
+    },
+    {
+     "name": "unsup",
+     "line": 30,
+     "kind": "function"
+    },
+    {
+     "name": "languageFor",
+     "line": 79,
+     "kind": "function"
+    },
+    {
+     "name": "isNodeBuiltin",
+     "line": 152,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "ANALYZER_VERSION",
+    "ARCHITECTURAL_RULE_ELIGIBLE_EXTS",
+    "AST_SUPPORTED_EXTS",
+    "BINARY_OR_ASSET_EXTS",
+    "CODE_LANGUAGE_SUPPORT",
+    "EXT_LANGUAGE",
+    "IGNORED_DIR_NAMES",
+    "JS_TS_EXTS",
+    "LIMITS",
+    "LOCKFILE_NAMES",
+    "LanguageInfo",
+    "METRIC_DEFINITIONS",
+    "MINIFIED_SUFFIXES",
+    "NODE_BUILTINS",
+    "NODE_PREFIX_ONLY",
+    "OTHER_LANGUAGE",
+    "SupportLevel",
+    "TS_EXTS",
+    "isNodeBuiltin",
+    "languageFor"
+   ],
+   "complexity": 7,
+   "tokens": 1250
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/lightAnalyzers.ts",
+   "name": "lightAnalyzers.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 6162,
+   "lines": 172,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "scrubPython",
+     "line": 17,
+     "kind": "function"
+    },
+    {
+     "name": "keepNl",
+     "line": 21,
+     "kind": "function"
+    },
+    {
+     "name": "logicalLines",
+     "line": 51,
+     "kind": "function"
+    },
+    {
+     "name": "analyzePython",
+     "line": 92,
+     "kind": "function"
+    },
+    {
+     "name": "scrubGo",
+     "line": 131,
+     "kind": "function"
+    },
+    {
+     "name": "keepNl",
+     "line": 135,
+     "kind": "function"
+    },
+    {
+     "name": "analyzeGo",
+     "line": 168,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "GoResult",
+    "LogicalLine",
+    "PyImport",
+    "PythonResult",
+    "analyzeGo",
+    "analyzePython",
+    "logicalLines",
+    "scrubGo",
+    "scrubPython"
+   ],
+   "complexity": 74,
+   "tokens": 1458
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/pythonStdlib.ts",
+   "name": "pythonStdlib.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 2507,
+   "lines": 28,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "PYTHON_STDLIB"
+   ],
+   "complexity": 1,
+   "tokens": 441
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "name": "resolver.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 22138,
+   "lines": 536,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "parseJsonc",
+     "line": 50,
+     "kind": "function"
+    },
+    {
+     "name": "readJson",
+     "line": 76,
+     "kind": "function"
+    },
+    {
+     "name": "buildResolveContext",
+     "line": 88,
+     "kind": "function"
+    },
+    {
+     "name": "loadConfig",
+     "line": 134,
+     "kind": "function"
+    },
+    {
+     "name": "normalizeRel",
+     "line": 212,
+     "kind": "function"
+    },
+    {
+     "name": "resolveFile",
+     "line": 218,
+     "kind": "function"
+    },
+    {
+     "name": "assetExists",
+     "line": 238,
+     "kind": "function"
+    },
+    {
+     "name": "packageNameOf",
+     "line": 243,
+     "kind": "function"
+    },
+    {
+     "name": "nearestAliasConfigs",
+     "line": 248,
+     "kind": "function"
+    },
+    {
+     "name": "matchPaths",
+     "line": 260,
+     "kind": "function"
+    },
+    {
+     "name": "firstStringLeaf",
+     "line": 279,
+     "kind": "function"
+    },
+    {
+     "name": "resolveWorkspace",
+     "line": 295,
+     "kind": "function"
+    },
+    {
+     "name": "join",
+     "line": 301,
+     "kind": "function"
+    },
+    {
+     "name": "resolvePackageImports",
+     "line": 335,
+     "kind": "function"
+    },
+    {
+     "name": "cleanSpecifier",
+     "line": 367,
+     "kind": "function"
+    },
+    {
+     "name": "resolveJsImport",
+     "line": 376,
+     "kind": "function"
+    },
+    {
+     "name": "pyModuleFile",
+     "line": 464,
+     "kind": "function"
+    },
+    {
+     "name": "pyPackageRoot",
+     "line": 477,
+     "kind": "function"
+    },
+    {
+     "name": "resolvePythonImport",
+     "line": 485,
+     "kind": "function"
+    },
+    {
+     "name": "withSubmodules",
+     "line": 493,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "PyResolution",
+    "Resolution",
+    "ResolveContext",
+    "buildResolveContext",
+    "cleanSpecifier",
+    "parseJsonc",
+    "resolveFile",
+    "resolveJsImport",
+    "resolvePythonImport"
+   ],
+   "complexity": 203,
+   "tokens": 4941
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analysis/types.ts",
+   "name": "types.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services/analysis",
+   "size": 5817,
+   "lines": 172,
+   "kind": "code",
+   "functions": [],
+   "exports": [
+    "AnalysisMetrics",
+    "AnalysisResult",
+    "AnalyzedFile",
+    "ArchitecturalIssue",
+    "Confidence",
+    "CoverageInfo",
+    "DependencyEdge",
+    "DependencyEdgeKind",
+    "FileParseStatus",
+    "IDependencyMetrics",
+    "ISupportStatus",
+    "LanguageBreakdownEntry",
+    "LanguageSupportEntry",
+    "RuleRun",
+    "SupportLevelKind"
+   ],
+   "complexity": 1,
+   "tokens": 668
+  },
+  {
+   "path": "astral-cartographer/server/src/services/analyzer.ts",
+   "name": "analyzer.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services",
+   "size": 27588,
+   "lines": 602,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "normalizePackageIdentity",
+     "line": 52,
+     "kind": "function"
+    },
+    {
+     "name": "dataLang",
+     "line": 81,
+     "kind": "function"
+    },
+    {
+     "name": "tick",
+     "line": 87,
+     "kind": "function"
+    },
+    {
+     "name": "countLines",
+     "line": 89,
+     "kind": "function"
+    },
+    {
+     "name": "countLinesStreaming",
+     "line": 97,
+     "kind": "function"
+    },
+    {
+     "name": "sniff",
+     "line": 117,
+     "kind": "function"
+    },
+    {
+     "name": "levelOf",
+     "line": 133,
+     "kind": "function"
+    },
+    {
+     "name": "CodeAnalyzer",
+     "line": 136,
+     "kind": "class"
+    },
+    {
+     "name": "constructor",
+     "line": 140,
+     "kind": "method"
+    },
+    {
+     "name": "discover",
+     "line": 153,
+     "kind": "method"
+    },
+    {
+     "name": "exclude",
+     "line": 159,
+     "kind": "function"
+    },
+    {
+     "name": "analyze",
+     "line": 221,
+     "kind": "method"
+    },
+    {
+     "name": "priority",
+     "line": 234,
+     "kind": "function"
+    },
+    {
+     "name": "noImports",
+     "line": 285,
+     "kind": "function"
+    },
+    {
+     "name": "addEdge",
+     "line": 358,
+     "kind": "function"
+    },
+    {
+     "name": "markUnresolved",
+     "line": 367,
+     "kind": "function"
+    },
+    {
+     "name": "isFull",
+     "line": 431,
+     "kind": "function"
+    },
+    {
+     "name": "metricStatus",
+     "line": 452,
+     "kind": "function"
+    },
+    {
+     "name": "names",
+     "line": 460,
+     "kind": "function"
+    },
+    {
+     "name": "count",
+     "line": 481,
+     "kind": "function"
+    },
+    {
+     "name": "uniq",
+     "line": 498,
+     "kind": "function"
+    },
+    {
+     "name": "byLines",
+     "line": 562,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "ANALYZER_VERSION",
+    "ARCHITECTURAL_RULE_ELIGIBLE_EXTS",
+    "AST_SUPPORTED_EXTS",
+    "AnalysisResult",
+    "AnalyzedFile",
+    "AnalyzerOptions",
+    "ArchitecturalIssue",
+    "CODE_LANGUAGE_SUPPORT",
+    "CodeAnalyzer",
+    "DependencyEdge",
+    "IDependencyMetrics",
+    "ISupportStatus",
+    "NODE_BUILTINS",
+    "THRESHOLDS",
+    "normalizePackageIdentity"
+   ],
+   "complexity": 167,
+   "tokens": 5667
+  },
+  {
+   "path": "astral-cartographer/server/src/services/github.ts",
+   "name": "github.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services",
+   "size": 7111,
+   "lines": 157,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "parseGitHubUrl",
+     "line": 26,
+     "kind": "function"
+    },
+    {
+     "name": "apiHeaders",
+     "line": 44,
+     "kind": "function"
+    },
+    {
+     "name": "rateLimited",
+     "line": 51,
+     "kind": "function"
+    },
+    {
+     "name": "fetchRepoMeta",
+     "line": 66,
+     "kind": "function"
+    },
+    {
+     "name": "resolveCommitSha",
+     "line": 90,
+     "kind": "function"
+    },
+    {
+     "name": "downloadArchive",
+     "line": 110,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "DOWNLOAD_LIMITS",
+    "ParsedGitHubUrl",
+    "RepoMeta",
+    "downloadArchive",
+    "fetchRepoMeta",
+    "parseGitHubUrl",
+    "resolveCommitSha"
+   ],
+   "complexity": 40,
+   "tokens": 1306
+  },
+  {
+   "path": "astral-cartographer/server/src/services/repositoryService.ts",
+   "name": "repositoryService.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services",
+   "size": 15176,
+   "lines": 317,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "setStage",
+     "line": 61,
+     "kind": "function"
+    },
+    {
+     "name": "fitToDocumentLimit",
+     "line": 66,
+     "kind": "function"
+    },
+    {
+     "name": "size",
+     "line": 67,
+     "kind": "function"
+    },
+    {
+     "name": "sanitizeProjectName",
+     "line": 86,
+     "kind": "function"
+    },
+    {
+     "name": "RepositoryService",
+     "line": 91,
+     "kind": "class"
+    },
+    {
+     "name": "analyzeGitHubRepo",
+     "line": 95,
+     "kind": "method"
+    },
+    {
+     "name": "analyzeZipUpload",
+     "line": 135,
+     "kind": "method"
+    },
+    {
+     "name": "recoverInterrupted",
+     "line": 165,
+     "kind": "method"
+    },
+    {
+     "name": "run",
+     "line": 175,
+     "kind": "method"
+    },
+    {
+     "name": "upsertRepository",
+     "line": 294,
+     "kind": "method"
+    },
+    {
+     "name": "find",
+     "line": 295,
+     "kind": "function"
+    },
+    {
+     "name": "pruneOldAnalyses",
+     "line": 309,
+     "kind": "method"
+    }
+   ],
+   "exports": [
+    "AnalyzeOptions",
+    "AnalyzeOutcome",
+    "GitHubRepoInfo",
+    "RepositoryService",
+    "UserFacingError",
+    "fitToDocumentLimit",
+    "parseGitHubUrl"
+   ],
+   "complexity": 45,
+   "tokens": 2659
+  },
+  {
+   "path": "astral-cartographer/server/src/services/safeArchive.ts",
+   "name": "safeArchive.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/services",
+   "size": 5261,
+   "lines": 119,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "UserFacingError",
+     "line": 7,
+     "kind": "class"
+    },
+    {
+     "name": "constructor",
+     "line": 9,
+     "kind": "method"
+    },
+    {
+     "name": "isZipBuffer",
+     "line": 34,
+     "kind": "function"
+    },
+    {
+     "name": "safeExtract",
+     "line": 47,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "ARCHIVE_LIMITS",
+    "ExtractStats",
+    "UserFacingError",
+    "isZipBuffer",
+    "safeExtract"
+   ],
+   "complexity": 36,
+   "tokens": 861
+  },
+  {
+   "path": "astral-cartographer/server/src/test/analyzer.regression.test.ts",
+   "name": "analyzer.regression.test.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/test",
+   "size": 14211,
+   "lines": 251,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "analyze",
+     "line": 7,
+     "kind": "function"
+    },
+    {
+     "name": "edges",
+     "line": 8,
+     "kind": "function"
+    }
+   ],
+   "exports": [],
+   "complexity": 5,
+   "tokens": 2749
+  },
+  {
+   "path": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "name": "analyzer.test.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/test",
+   "size": 8595,
+   "lines": 224,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "analyzeRepository",
+     "line": 8,
+     "kind": "function"
+    },
+    {
+     "name": "createTempRepo",
+     "line": 13,
+     "kind": "function"
+    }
+   ],
+   "exports": [],
+   "complexity": 3,
+   "tokens": 1236
+  },
+  {
+   "path": "astral-cartographer/server/src/test/api.test.ts",
+   "name": "api.test.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/test",
+   "size": 14287,
+   "lines": 264,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "auth",
+     "line": 30,
+     "kind": "function"
+    },
+    {
+     "name": "project",
+     "line": 32,
+     "kind": "function"
+    },
+    {
+     "name": "upload",
+     "line": 35,
+     "kind": "function"
+    },
+    {
+     "name": "get",
+     "line": 43,
+     "kind": "function"
+    },
+    {
+     "name": "tmpAstralDirs",
+     "line": 47,
+     "kind": "function"
+    },
+    {
+     "name": "t",
+     "line": 107,
+     "kind": "function"
+    },
+    {
+     "name": "b64",
+     "line": 116,
+     "kind": "function"
+    }
+   ],
+   "exports": [],
+   "complexity": 17,
+   "tokens": 3227
+  },
+  {
+   "path": "astral-cartographer/server/src/test/helpers.ts",
+   "name": "helpers.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/test",
+   "size": 2631,
+   "lines": 57,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "makeRepo",
+     "line": 8,
+     "kind": "function"
+    },
+    {
+     "name": "cleanupRepos",
+     "line": 19,
+     "kind": "function"
+    },
+    {
+     "name": "rawZip",
+     "line": 32,
+     "kind": "function"
+    }
+   ],
+   "exports": [
+    "RawEntry",
+    "cleanupRepos",
+    "makeRepo",
+    "rawZip"
+   ],
+   "complexity": 6,
+   "tokens": 606
+  },
+  {
+   "path": "astral-cartographer/server/src/test/security.test.ts",
+   "name": "security.test.ts",
+   "ext": ".ts",
+   "folder": "astral-cartographer/server/src/test",
+   "size": 5827,
+   "lines": 106,
+   "kind": "code",
+   "functions": [
+    {
+     "name": "tmp",
+     "line": 13,
+     "kind": "function"
+    },
+    {
+     "name": "zipOf",
+     "line": 17,
+     "kind": "function"
+    },
+    {
+     "name": "rejects",
+     "line": 18,
+     "kind": "function"
+    },
+    {
+     "name": "mk",
+     "line": 88,
+     "kind": "function"
+    }
+   ],
+   "exports": [],
+   "complexity": 7,
+   "tokens": 1260
+  },
+  {
+   "path": "astral-cartographer/server/tsconfig.json",
+   "name": "tsconfig.json",
+   "ext": ".json",
+   "folder": "astral-cartographer/server",
+   "size": 382,
+   "lines": 16,
+   "kind": "other",
+   "functions": [],
+   "exports": []
+  }
+ ],
+ "edges": [
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "specifier": "./context/AuthContext",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/components/ProtectedRoute.tsx",
+   "specifier": "./components/ProtectedRoute",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/components/AppShell.tsx",
+   "specifier": "./components/AppShell",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/pages/Opening.tsx",
+   "specifier": "./pages/Opening",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/pages/Auth.tsx",
+   "specifier": "./pages/Auth",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "specifier": "./pages/AuthCallback",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/pages/Home.tsx",
+   "specifier": "./pages/Home",
+   "line": 8,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/App.tsx",
+   "to": "astral-cartographer/client/src/pages/Placeholder.tsx",
+   "specifier": "./pages/Placeholder",
+   "line": 9,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": "astral-cartographer/client/src/components/Logo.tsx",
+   "specifier": "./Logo",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "specifier": "../context/AuthContext",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/AppShell.tsx",
+   "to": "astral-cartographer/client/src/context/repositoryStore.ts",
+   "specifier": "../context/repositoryStore",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/ProtectedRoute.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/ProtectedRoute.tsx",
+   "to": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "specifier": "../context/AuthContext",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/StarNetwork.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/StarNetwork.tsx",
+   "to": "astral-cartographer/client/src/lib/constellation.ts",
+   "specifier": "../lib/constellation",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ExploreCards.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ExploreCards.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/LanguageSupport.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 1,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/LanguageSupport.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/LanguageSupport.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "specifier": "./RecentRepositories",
+   "line": 14,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "./ui",
+   "line": 15,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ui.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ui.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ui.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../../lib/api",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/components/home/ui.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../../lib/analysisFormat",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "to": null,
+   "specifier": "@supabase/supabase-js",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "to": "astral-cartographer/client/src/lib/supabase.ts",
+   "specifier": "../lib/supabase",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/context/repositoryStore.ts",
+   "to": null,
+   "specifier": "zustand",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/context/repositoryStore.ts",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../lib/api",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "./api",
+   "line": 1,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/lib/api.ts",
+   "to": "astral-cartographer/client/src/lib/supabase.ts",
+   "specifier": "./supabase",
+   "line": 1,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/lib/supabase.ts",
+   "to": null,
+   "specifier": "@supabase/supabase-js",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/lib/verifySupabaseToken.ts",
+   "to": null,
+   "specifier": "@supabase/supabase-js",
+   "line": 22,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "react-dom/client",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/inter/300.css",
+   "line": 4,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/inter/400.css",
+   "line": 5,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/inter/500.css",
+   "line": 6,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/inter/600.css",
+   "line": 7,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/inter/700.css",
+   "line": 8,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": null,
+   "specifier": "@fontsource/jetbrains-mono/400.css",
+   "line": 9,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": "astral-cartographer/client/src/styles/tokens.css",
+   "specifier": "./styles/tokens.css",
+   "line": 10,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": "astral-cartographer/client/src/styles/global.css",
+   "specifier": "./styles/global.css",
+   "line": 11,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/main.tsx",
+   "to": "astral-cartographer/client/src/App.tsx",
+   "specifier": "./App",
+   "line": 12,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": "astral-cartographer/client/src/lib/backgrounds.ts",
+   "specifier": "../lib/backgrounds",
+   "line": 21,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "specifier": "../context/AuthContext",
+   "line": 22,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Auth.tsx",
+   "to": "astral-cartographer/client/src/lib/supabase.ts",
+   "specifier": "../lib/supabase",
+   "line": 23,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": "astral-cartographer/client/src/lib/supabase.ts",
+   "specifier": "../lib/supabase",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": "astral-cartographer/client/src/context/AuthContext.tsx",
+   "specifier": "../context/AuthContext",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/AuthCallback.tsx",
+   "to": "astral-cartographer/client/src/lib/backgrounds.ts",
+   "specifier": "../lib/backgrounds",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/lib/api.ts",
+   "specifier": "../lib/api",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/lib/analysisFormat.ts",
+   "specifier": "../lib/analysisFormat",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/context/repositoryStore.ts",
+   "specifier": "../context/repositoryStore",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/ImportPanel.tsx",
+   "specifier": "../components/home/ImportPanel",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/RecentRepositories.tsx",
+   "specifier": "../components/home/RecentRepositories",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/RepositoryOverview.tsx",
+   "specifier": "../components/home/RepositoryOverview",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/DependencyOverview.tsx",
+   "specifier": "../components/home/DependencyOverview",
+   "line": 8,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/ArchitecturalHealth.tsx",
+   "specifier": "../components/home/ArchitecturalHealth",
+   "line": 9,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/LanguageSupport.tsx",
+   "specifier": "../components/home/LanguageSupport",
+   "line": 10,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/ExploreCards.tsx",
+   "specifier": "../components/home/ExploreCards",
+   "line": 11,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Home.tsx",
+   "to": "astral-cartographer/client/src/components/home/ui.tsx",
+   "specifier": "../components/home/ui",
+   "line": 12,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Opening.tsx",
+   "to": null,
+   "specifier": "react",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Opening.tsx",
+   "to": null,
+   "specifier": "lucide-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Opening.tsx",
+   "to": null,
+   "specifier": "react-router-dom",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Opening.tsx",
+   "to": "astral-cartographer/client/src/components/StarNetwork.tsx",
+   "specifier": "../components/StarNetwork",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/src/pages/Opening.tsx",
+   "to": "astral-cartographer/client/src/lib/backgrounds.ts",
+   "specifier": "../lib/backgrounds",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/client/vite.config.ts",
+   "to": null,
+   "specifier": "vite",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/client/vite.config.ts",
+   "to": null,
+   "specifier": "@vitejs/plugin-react",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/config/db.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/config/db.ts",
+   "to": null,
+   "specifier": "mongodb-memory-server",
+   "line": 39,
+   "kind": "dynamic",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": null,
+   "specifier": "dotenv/config",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": null,
+   "specifier": "express",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": null,
+   "specifier": "cors",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 4,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": "astral-cartographer/server/src/config/db.ts",
+   "specifier": "./config/db.js",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": "astral-cartographer/server/src/middleware/auth.ts",
+   "specifier": "./middleware/auth.js",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": "astral-cartographer/server/src/middleware/errorHandler.ts",
+   "specifier": "./middleware/errorHandler.js",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "specifier": "./routes/repositoryRoutes.js",
+   "line": 8,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/index.ts",
+   "to": "astral-cartographer/server/src/services/repositoryService.ts",
+   "specifier": "./services/repositoryService.js",
+   "line": 9,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/middleware/auth.ts",
+   "to": null,
+   "specifier": "express",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/middleware/auth.ts",
+   "to": null,
+   "specifier": "crypto",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/middleware/auth.ts",
+   "to": null,
+   "specifier": "@supabase/supabase-js",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/middleware/errorHandler.ts",
+   "to": null,
+   "specifier": "express",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/models/Analysis.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/models/Analysis.ts",
+   "to": "astral-cartographer/server/src/services/analysis/types.ts",
+   "specifier": "../services/analysis/types.js",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/models/Repository.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": null,
+   "specifier": "express",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": null,
+   "specifier": "multer",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": "astral-cartographer/server/src/middleware/auth.ts",
+   "specifier": "../middleware/auth.js",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": "astral-cartographer/server/src/models/Repository.ts",
+   "specifier": "../models/Repository.js",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": "astral-cartographer/server/src/models/Analysis.ts",
+   "specifier": "../models/Analysis.js",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "to": "astral-cartographer/server/src/services/repositoryService.ts",
+   "specifier": "../services/repositoryService.js",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/architecture.ts",
+   "to": null,
+   "specifier": "crypto",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/architecture.ts",
+   "to": "astral-cartographer/server/src/services/analysis/types.ts",
+   "specifier": "./types.js",
+   "line": 2,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/jsParser.ts",
+   "to": null,
+   "specifier": "@babel/parser",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/jsParser.ts",
+   "to": null,
+   "specifier": "@babel/traverse",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/jsParser.ts",
+   "to": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "specifier": "./languages.js",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "to": null,
+   "specifier": "node:module",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "to": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "specifier": "./languages.js",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "to": "astral-cartographer/server/src/services/analysis/pythonStdlib.ts",
+   "specifier": "./pythonStdlib.js",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "to": "astral-cartographer/server/src/services/analysis/lightAnalyzers.ts",
+   "specifier": "./lightAnalyzers.js",
+   "line": 5,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "specifier": "./analysis/languages.js",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/jsParser.ts",
+   "specifier": "./analysis/jsParser.js",
+   "line": 16,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/lightAnalyzers.ts",
+   "specifier": "./analysis/lightAnalyzers.js",
+   "line": 17,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/resolver.ts",
+   "specifier": "./analysis/resolver.js",
+   "line": 18,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/architecture.ts",
+   "specifier": "./analysis/architecture.js",
+   "line": 19,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/types.ts",
+   "specifier": "./analysis/types.js",
+   "line": 20,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/types.ts",
+   "specifier": "./analysis/types.js",
+   "line": 34,
+   "kind": "reexport",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "specifier": "./analysis/languages.js",
+   "line": 42,
+   "kind": "reexport",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/analyzer.ts",
+   "to": "astral-cartographer/server/src/services/analysis/architecture.ts",
+   "specifier": "./analysis/architecture.js",
+   "line": 49,
+   "kind": "reexport",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/github.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/github.ts",
+   "to": null,
+   "specifier": "axios",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/github.ts",
+   "to": "astral-cartographer/server/src/services/safeArchive.ts",
+   "specifier": "./safeArchive.js",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "os",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "crypto",
+   "line": 4,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "adm-zip",
+   "line": 5,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 6,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/models/Repository.ts",
+   "specifier": "../models/Repository.js",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/models/Analysis.ts",
+   "specifier": "../models/Analysis.js",
+   "line": 8,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/analyzer.ts",
+   "specifier": "./analyzer.js",
+   "line": 9,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/analysis/types.ts",
+   "specifier": "./analysis/types.js",
+   "line": 10,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/github.ts",
+   "specifier": "./github.js",
+   "line": 11,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/safeArchive.ts",
+   "specifier": "./safeArchive.js",
+   "line": 12,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/github.ts",
+   "specifier": "./github.js",
+   "line": 14,
+   "kind": "reexport",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/repositoryService.ts",
+   "to": "astral-cartographer/server/src/services/safeArchive.ts",
+   "specifier": "./safeArchive.js",
+   "line": 15,
+   "kind": "reexport",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/safeArchive.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/safeArchive.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/safeArchive.ts",
+   "to": null,
+   "specifier": "adm-zip",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/services/safeArchive.ts",
+   "to": "astral-cartographer/server/src/services/analysis/languages.ts",
+   "specifier": "./analysis/languages.js",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.regression.test.ts",
+   "to": null,
+   "specifier": "node:test",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.regression.test.ts",
+   "to": null,
+   "specifier": "node:assert/strict",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.regression.test.ts",
+   "to": "astral-cartographer/server/src/services/analyzer.ts",
+   "specifier": "../services/analyzer.js",
+   "line": 3,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.regression.test.ts",
+   "to": "astral-cartographer/server/src/test/helpers.ts",
+   "specifier": "./helpers.js",
+   "line": 4,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": null,
+   "specifier": "node:test",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": null,
+   "specifier": "node:assert/strict",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 4,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": null,
+   "specifier": "os",
+   "line": 5,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/analyzer.test.ts",
+   "to": "astral-cartographer/server/src/services/analyzer.ts",
+   "specifier": "../services/analyzer.js",
+   "line": 6,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "node:test",
+   "line": 5,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "node:assert/strict",
+   "line": 6,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "http",
+   "line": 7,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 8,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "os",
+   "line": 9,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "crypto",
+   "line": 10,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "net",
+   "line": 11,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "express",
+   "line": 12,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "mongoose",
+   "line": 13,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/test/helpers.ts",
+   "specifier": "./helpers.js",
+   "line": 14,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": null,
+   "specifier": "mongodb-memory-server",
+   "line": 54,
+   "kind": "dynamic",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/routes/repositoryRoutes.ts",
+   "specifier": "../routes/repositoryRoutes.js",
+   "line": 84,
+   "kind": "dynamic",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/middleware/errorHandler.ts",
+   "specifier": "../middleware/errorHandler.js",
+   "line": 85,
+   "kind": "dynamic",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/models/Repository.ts",
+   "specifier": "../models/Repository.js",
+   "line": 86,
+   "kind": "dynamic",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/models/Analysis.ts",
+   "specifier": "../models/Analysis.js",
+   "line": 87,
+   "kind": "dynamic",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/api.test.ts",
+   "to": "astral-cartographer/server/src/services/repositoryService.ts",
+   "specifier": "../services/repositoryService.js",
+   "line": 88,
+   "kind": "dynamic",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/helpers.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/helpers.ts",
+   "to": null,
+   "specifier": "os",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/helpers.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/helpers.ts",
+   "to": null,
+   "specifier": "zlib",
+   "line": 23,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "node:test",
+   "line": 1,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "node:assert/strict",
+   "line": 2,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "fs",
+   "line": 3,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "os",
+   "line": 4,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "path",
+   "line": 5,
+   "kind": "import",
+   "status": "external",
+   "reason": "built-in module"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": null,
+   "specifier": "adm-zip",
+   "line": 6,
+   "kind": "import",
+   "status": "external",
+   "reason": "package"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": "astral-cartographer/server/src/services/safeArchive.ts",
+   "specifier": "../services/safeArchive.js",
+   "line": 7,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": "astral-cartographer/server/src/services/github.ts",
+   "specifier": "../services/github.js",
+   "line": 8,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": "astral-cartographer/server/src/services/repositoryService.ts",
+   "specifier": "../services/repositoryService.js",
+   "line": 9,
+   "kind": "import",
+   "status": "resolved"
+  },
+  {
+   "from": "astral-cartographer/server/src/test/security.test.ts",
+   "to": "astral-cartographer/server/src/test/helpers.ts",
+   "specifier": "./helpers.js",
+   "line": 10,
+   "kind": "import",
+   "status": "resolved"
+  }
+ ],
+ "cycles": [],
+ "stats": {
+  "files": 67,
+  "edges": 213,
+  "unresolved": 0,
+  "parseErrors": 0,
+  "skipped": []
+ }
+}
