@@ -36,10 +36,40 @@ export interface AtlasModel {
 
 /** Runtime check for data loaded from JSON / the network. Throws a readable message. */
 export function parseAtlasData(raw: unknown): AtlasData {
-  const d = raw as AtlasData;
   const fail = (msg: string): never => { throw new Error(`Atlas data is invalid: ${msg}.`); };
-  if (!d || typeof d !== 'object') fail('not an object');
-  if (d.version !== 1) fail(`unsupported version ${String((d as any).version)}`);
+  if (!raw || typeof raw !== 'object') fail('not an object');
+
+  let d: any = raw;
+
+  // Handle AtlasLoad result envelopes ({ ok: true, data: ... }) or API response wrappers
+  if (d.ok === false) {
+    fail(d.message || 'Atlas data could not be loaded');
+  }
+  if (d.ok === true && d.data && typeof d.data === 'object') {
+    d = d.data;
+  } else if (d.data && typeof d.data === 'object' && ('files' in d.data || 'repo' in d.data || 'version' in d.data)) {
+    d = d.data;
+  }
+
+  // Safe fallback or default version ('1.0' / 1) if version is undefined, null, or empty
+  const rawVersion = d.version !== undefined && d.version !== null && d.version !== '' ? d.version : '1.0';
+  if (rawVersion === 1 || rawVersion === '1.0' || rawVersion === '1') {
+    d.version = 1;
+  } else {
+    fail(`unsupported version ${String(d.version)}`);
+  }
+
+  // Safe fallback for repo info if missing or provided at top level
+  if (!d.repo && (typeof d.name === 'string' || typeof d.repoName === 'string')) {
+    d.repo = {
+      owner: d.owner || '',
+      name: d.name || d.repoName || 'repository',
+      branch: d.branch || 'main',
+      commitSha: d.commitSha || '',
+      analyzedAt: d.analyzedAt || new Date().toISOString(),
+    };
+  }
+
   if (!d.repo || typeof d.repo.name !== 'string') fail('missing repository info');
   if (!Array.isArray(d.files) || !Array.isArray(d.edges) || !Array.isArray(d.cycles) || !d.stats) fail('missing files, edges, cycles or stats');
   const paths = new Set<string>();
@@ -51,7 +81,7 @@ export function parseAtlasData(raw: unknown): AtlasData {
     if (typeof e?.from !== 'string' || !paths.has(e.from)) fail(`edge source ${String(e?.from)} is not a file`);
     if (e.status === 'resolved' ? !(typeof e.to === 'string' && paths.has(e.to)) : e.to !== null) fail(`edge ${e.from} -> ${String(e.to)} has an invalid target`);
   }
-  return d;
+  return d as AtlasData;
 }
 
 export function buildModel(data: AtlasData): AtlasModel {

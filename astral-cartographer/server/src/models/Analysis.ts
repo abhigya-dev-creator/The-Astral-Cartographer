@@ -21,6 +21,7 @@ export interface IAnalysis extends Document {
   userId: string;
   status: 'pending' | 'analyzing' | 'completed' | 'failed';
   errorMessage?: string;
+  version?: string;
   /** commit SHA (GitHub) or archive content hash (ZIP) that was analysed */
   commitSha?: string;
   branch?: string;
@@ -44,6 +45,7 @@ const AnalysisSchema = new Schema<IAnalysis>(
     userId: { type: String, required: true, index: true },
     status: { type: String, enum: ['pending', 'analyzing', 'completed', 'failed'], default: 'pending' },
     errorMessage: { type: String },
+    version: { type: String, default: '1.0' },
     commitSha: { type: String },
     branch: { type: String },
     analyzerVersion: { type: String },

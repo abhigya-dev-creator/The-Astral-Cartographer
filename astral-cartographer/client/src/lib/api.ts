@@ -135,6 +135,7 @@ export interface AnalysisSummary {
   languages: IAnalysisLanguage[];
   commitSha?: string | null;
   branch?: string | null;
+  version?: string;
   analyzerVersion?: string;
   warnings?: string[];
   truncated?: boolean;

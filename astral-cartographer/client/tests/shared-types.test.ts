@@ -29,3 +29,28 @@ test('both validators reject the same broken data', () => {
   assert.ok(validateAtlasData({ ...sample, version: 2 }).length > 0);
   assert.throws(() => parseAtlasData({ ...sample, version: 2 }), /unsupported version/);
 });
+
+test('parser and validator handle safe version fallbacks and envelope wrappers', () => {
+  // Undefined version defaults cleanly to version 1
+  const withoutVersion = { ...sample };
+  delete (withoutVersion as any).version;
+  const parsedDefault = parseAtlasData(withoutVersion);
+  assert.equal(parsedDefault.version, 1);
+  assert.deepEqual(validateAtlasData(withoutVersion), []);
+
+  // '1.0' and '1' string versions normalize to version 1
+  const withStringVersion = { ...sample, version: '1.0' };
+  const parsedString = parseAtlasData(withStringVersion);
+  assert.equal(parsedString.version, 1);
+  assert.deepEqual(validateAtlasData(withStringVersion), []);
+
+  // Result envelope { ok: true, data: sample } unwraps transparently
+  const envelope = { ok: true, data: sample };
+  const parsedEnvelope = parseAtlasData(envelope);
+  assert.equal(parsedEnvelope.version, 1);
+  assert.equal(parsedEnvelope.files.length, sample.files.length);
+
+  // Failed AtlasLoad envelope fails with message
+  assert.throws(() => parseAtlasData({ ok: false, code: 'NO_ATLAS', message: 'No map available' }), /No map available/);
+});
+

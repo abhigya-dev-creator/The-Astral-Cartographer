@@ -215,7 +215,7 @@ export class RepositoryService {
       }
 
       await Repository.updateOne({ _id: repo._id }, { analysisStatus: 'analyzing', analysisStage: 'downloading', statusMessage: 'Starting analysis...' });
-      analysisDoc = await Analysis.create({ repositoryId: repo._id, userId: params.userId, status: 'analyzing', commitSha: params.knownCommit || undefined, branch: params.branch, analyzerVersion: ANALYZER_VERSION });
+      analysisDoc = await Analysis.create({ repositoryId: repo._id, userId: params.userId, status: 'analyzing', commitSha: params.knownCommit || undefined, branch: params.branch, analyzerVersion: ANALYZER_VERSION, version: '1.0' });
 
       workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astral-'));
       const source = await params.acquire(workDir, (s) => setStage(repo!._id, s));
@@ -260,6 +260,7 @@ export class RepositoryService {
       }
       const payload = {
         status: 'completed' as const,
+        version: '1.0',
         commitSha: source.commitSha,
         branch: source.branch,
         analyzerVersion: result.analyzerVersion,

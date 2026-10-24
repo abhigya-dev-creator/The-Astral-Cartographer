@@ -38,9 +38,11 @@ export function encodeAtlas(data: AtlasData): { gz: Buffer; bytes: number } {
 
 export function decodeAtlas(gz: Buffer): AtlasData {
   const data = JSON.parse(zlib.gunzipSync(gz).toString('utf8'));
-  if (!data || data.version !== 1 || !Array.isArray(data.files) || !Array.isArray(data.edges)) {
+  const version = data?.version ?? 1;
+  if (!data || (version !== 1 && version !== '1.0' && version !== '1') || !Array.isArray(data.files) || !Array.isArray(data.edges)) {
     throw new Error('Stored atlas data has an unsupported format.');
   }
+  data.version = 1;
   return data as AtlasData;
 }
 

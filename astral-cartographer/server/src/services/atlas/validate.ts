@@ -10,7 +10,8 @@ export function validateAtlasData(raw: unknown): string[] {
   const isStr = (v: unknown) => typeof v === 'string';
   const isNum = (v: unknown) => typeof v === 'number' && Number.isFinite(v);
   if (!d || typeof d !== 'object') return ['not an object'];
-  if (d.version !== 1) errs.push(`version must be 1, got ${String(d.version)}`);
+  const rawVersion = d.version !== undefined && d.version !== null && (d.version as any) !== '' ? d.version : '1.0';
+  if (rawVersion !== 1 && rawVersion !== '1.0' && rawVersion !== '1') errs.push(`version must be 1, got ${String(d.version)}`);
   const r = d.repo;
   if (!r || !['owner', 'name', 'branch', 'commitSha', 'analyzedAt'].every((k) => isStr((r as any)[k]))) errs.push('repo: owner, name, branch, commitSha and analyzedAt must be strings');
   if (r?.source !== undefined && r.source !== 'github' && r.source !== 'zip') errs.push('repo.source must be github or zip');

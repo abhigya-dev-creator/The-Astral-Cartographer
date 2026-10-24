@@ -3,7 +3,7 @@
  * Dependency Atlas, which selects the file, shows its connections and its source (Code tab). When the Code Explorer
  * exists, set CODE_EXPLORER_READY and give it the same query parameters, and every caller switches over.
  */
-export const CODE_EXPLORER_READY = false;
+export const CODE_EXPLORER_READY = true;
 
 export interface CodeLinkRepo {
   _id: string;

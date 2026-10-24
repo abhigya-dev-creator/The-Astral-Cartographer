@@ -2,7 +2,7 @@
 .env
 .env.*
 !.env.example
-
+.env.local
 # local leftovers that are not part of the project
 *.zip
 /server/

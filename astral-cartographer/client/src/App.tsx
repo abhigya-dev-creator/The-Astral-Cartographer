@@ -10,7 +10,10 @@ import Home from './pages/Home';
 import Placeholder from './pages/Placeholder';
 
 const DependencyAtlas = lazy(() => import('./pages/DependencyAtlas'));
+const CodeExplorer = lazy(() => import('./pages/CodeExplorer'));
+const ArchitecturalHealth = lazy(() => import('./pages/ArchitecturalHealth'));
 const OnboardingPathfinder = lazy(() => import('./pages/OnboardingPathfinder'));
+const ReportsBenchmarks = lazy(() => import('./pages/ReportsBenchmarks'));
 
 export default function App() {
   return (
@@ -22,10 +25,10 @@ export default function App() {
         <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
           <Route path="/home" element={<Home />} />
           <Route path="/atlas" element={<Suspense fallback={null}><DependencyAtlas /></Suspense>} />
-          <Route path="/explorer" element={<Placeholder title="Code Explorer" subtitle="Browse, search, and understand your codebase." />} />
-          <Route path="/health" element={<Placeholder title="Architectural Health" subtitle="Understand the health, risks, and structure of your codebase." />} />
+          <Route path="/explorer" element={<Suspense fallback={null}><CodeExplorer /></Suspense>} />
+          <Route path="/health" element={<Suspense fallback={null}><ArchitecturalHealth /></Suspense>} />
           <Route path="/pathfinder" element={<Suspense fallback={null}><OnboardingPathfinder /></Suspense>} />
-          <Route path="/reports" element={<Placeholder title="Reports & Benchmarks" subtitle="Get detailed insights about this repository." />} />
+          <Route path="/reports" element={<Suspense fallback={null}><ReportsBenchmarks /></Suspense>} />
           <Route path="/settings" element={<Placeholder title="Settings" subtitle="Customize your experience and manage your repositories." />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

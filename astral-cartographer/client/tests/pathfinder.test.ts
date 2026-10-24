@@ -161,7 +161,7 @@ test('companion answers come from the analysis and admit what needs an AI model'
 
 test('code links: Dependency Atlas until the Code Explorer exists; GitHub only with a valid commit', () => {
   const r = { _id: 'abc', owner: 'octo', name: 'repo', source: 'github' as const };
-  assert.deepEqual(codeViewLink(r, 'src/a b.ts', 12), { to: '/atlas?repo=abc&file=src%2Fa+b.ts&line=12', label: 'Open in Dependency Atlas' });
+  assert.deepEqual(codeViewLink(r, 'src/a b.ts', 12), { to: '/explorer?repo=abc&file=src%2Fa+b.ts&line=12', label: 'Open in Code Explorer' });
   assert.equal(githubFileUrl(r, 'f'.repeat(40), 'src/a b.ts', 3), `https://github.com/octo/repo/blob/${'f'.repeat(40)}/src/a%20b.ts#L3`);
   assert.equal(githubFileUrl(r, 'main', 'src/a.ts'), null);
   assert.equal(githubFileUrl({ ...r, source: 'zip' }, 'f'.repeat(40), 'src/a.ts'), null);
