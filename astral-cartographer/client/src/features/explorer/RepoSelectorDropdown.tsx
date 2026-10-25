@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Check, Archive, Plus, Search } from 'lucide-react';
 import { GithubIcon } from '../../components/home/ui';
 import type { RepositorySummary } from '../../lib/api';
+import './RepoSelectorDropdown.css';
 
 interface RepoSelectorDropdownProps {
   repositories: RepositorySummary[];
@@ -15,6 +16,7 @@ export function RepoSelectorDropdown({
   onSelectRepo,
 }: RepoSelectorDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [filterQuery, setFilterQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,15 +46,26 @@ export function RepoSelectorDropdown({
     ? `${selectedRepo.owner} / ${selectedRepo.name}`
     : 'Select Repository';
 
+  const fullRepoName = selectedRepo?.fullName || displayName;
+
   return (
-    <div style={{ position: 'relative' }} ref={containerRef}>
+    <div
+      className="repo-selector-container"
+      style={{ zIndex: isOpen ? 600 : isHovered ? 500 : 20 }}
+      ref={containerRef}
+    >
       <button
         type="button"
-        className="explorer-repo-select-btn"
-        onClick={() => setIsOpen(!isOpen)}
+        className={`explorer-repo-select-btn ${isOpen ? 'open' : ''}`}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setIsHovered(false);
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        title={selectedRepo?.fullName || displayName}
+        aria-label={`Repository: ${fullRepoName}`}
       >
         {selectedRepo?.source === 'zip' ? (
           <Archive size={16} color="#FFB054" style={{ flexShrink: 0 }} />
@@ -69,8 +82,28 @@ export function RepoSelectorDropdown({
         >
           {displayName}
         </span>
-        <ChevronDown size={14} color="#77839C" style={{ flexShrink: 0 }} />
+        <ChevronDown
+          size={14}
+          color="#77839C"
+          style={{
+            flexShrink: 0,
+            transform: isOpen ? 'rotate(180deg)' : 'none',
+            transition: 'transform 0.15s ease',
+          }}
+        />
       </button>
+
+      {/* Custom cosmic hover tooltip without awkward native border outline */}
+      {isHovered && !isOpen && (
+        <div className="repo-selector-tooltip" role="tooltip">
+          <span className="repo-selector-tooltip-title">{fullRepoName}</span>
+          {selectedRepo && (
+            <span className="repo-selector-tooltip-meta">
+              {selectedRepo.primaryLanguage || 'Repository'} · {(selectedRepo.fileCount || 0).toLocaleString()} files
+            </span>
+          )}
+        </div>
+      )}
 
       {isOpen && (
         <div className="explorer-repo-dropdown-menu" role="listbox">

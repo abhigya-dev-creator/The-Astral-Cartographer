@@ -86,7 +86,7 @@ export function TopRiskAreasCard({ risks, repoId, onViewAll }: TopRiskAreasCardP
           }}
         >
           <span>Click any file to inspect in Code Explorer</span>
-          <span>{risks.length} total flagged</span>
+          <span>{risks.length.toLocaleString()} total flagged</span>
         </div>
       )}
     </div>

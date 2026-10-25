@@ -11,6 +11,7 @@
   box-sizing: border-box;
   color: var(--color-text, #EAF0FF);
   position: relative;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -121,14 +122,16 @@
   background: rgba(8, 14, 30, 0.78);
   border: 1px solid rgba(135, 155, 255, 0.16);
   border-radius: var(--radius-card, 18px);
-  padding: 20px 22px;
+  padding: 18px 20px;
   backdrop-filter: blur(var(--blur-card, 18px));
+  -webkit-backdrop-filter: blur(var(--blur-card, 18px));
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+  min-width: 0;
   transition: border-color var(--duration-normal, 160ms), box-shadow var(--duration-normal, 160ms);
 }
 
@@ -141,6 +144,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .health-card-title {
@@ -152,6 +156,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .health-card-action-btn {
@@ -166,6 +171,7 @@
   gap: 4px;
   padding: 0;
   transition: color var(--duration-fast, 120ms);
+  flex-shrink: 0;
 }
 
 .health-card-action-btn:hover {
@@ -176,17 +182,21 @@
 /* Dashboard Grid */
 .health-dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 20px;
+  width: 100%;
+  min-width: 0;
 }
 
 /* Column Spans */
 .health-col-4 {
   grid-column: span 4;
+  min-width: 0;
 }
 
 .health-col-8 {
   grid-column: span 8;
+  min-width: 0;
 }
 
 /* 1. Overall Health Score Card */
@@ -295,19 +305,23 @@
 /* 2. Key Metrics Grid */
 .key-metrics-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   flex: 1;
+  min-width: 0;
+  width: 100%;
 }
 
 .key-metric-tile {
   background: rgba(12, 20, 42, 0.6);
   border: 1px solid rgba(135, 155, 255, 0.12);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
   transition: all var(--duration-fast, 120ms);
 }
 
@@ -317,9 +331,9 @@
 }
 
 .key-metric-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -330,20 +344,31 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
+  flex: 1;
   overflow: hidden;
 }
 
 .key-metric-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #F3F6FF;
-  line-height: 1.1;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .key-metric-label {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--color-text-supporting, #A7B4CC);
-  white-space: nowrap;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  min-width: 0;
 }
 
 /* 3. Issues Overview Card */
@@ -500,10 +525,12 @@
   align-items: flex-end;
   justify-content: space-between;
   height: 140px;
-  padding-top: 14px;
+  padding-top: 24px;
   padding-bottom: 6px;
   gap: 12px;
   position: relative;
+  min-width: 0;
+  width: 100%;
 }
 
 .complexity-bar-col {
@@ -512,10 +539,11 @@
   align-items: center;
   gap: 8px;
   flex: 1;
+  min-width: 0;
   height: 100%;
   justify-content: flex-end;
   cursor: pointer;
-  group: hover;
+  position: relative;
 }
 
 .complexity-bar-track {
@@ -527,7 +555,7 @@
   display: flex;
   align-items: flex-end;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(135, 155, 255, 0.1);
   transition: all var(--duration-fast, 120ms);
 }
@@ -541,6 +569,7 @@
   width: 100%;
   border-radius: 4px;
   transition: height 300ms ease;
+  overflow: hidden;
 }
 
 .complexity-bar-label {
@@ -555,16 +584,18 @@
   top: -24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(5, 10, 24, 0.95);
+  background: rgba(7, 12, 27, 0.95);
   border: 1px solid rgba(135, 155, 255, 0.3);
-  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
   padding: 2px 6px;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #F3F6FF;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
+  z-index: 10;
   transition: opacity var(--duration-fast, 120ms);
 }
 
@@ -608,6 +639,7 @@
   gap: 10px;
   overflow: hidden;
   min-width: 0;
+  flex: 1;
 }
 
 .risk-item-path {
@@ -617,6 +649,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .risk-severity-badge {
@@ -709,6 +742,7 @@
   align-items: flex-start;
   gap: 14px;
   flex: 1;
+  min-width: 0;
 }
 
 .recommendation-icon-box {
@@ -746,18 +780,22 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
+  flex: 1;
 }
 
 .recommendation-title {
   font-size: 13.5px;
   font-weight: 600;
   color: #F3F6FF;
+  word-break: break-word;
 }
 
 .recommendation-subtitle {
   font-size: 12px;
   color: var(--color-text-supporting, #A7B4CC);
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .recommendation-arrow {
@@ -810,6 +848,10 @@
   color: #7DD3FC;
   text-decoration: none;
   transition: all var(--duration-fast, 120ms);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rec-file-pill:hover {
@@ -1058,7 +1100,7 @@
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1200px) {
+@media (max-width: 1320px) {
   .health-col-4 {
     grid-column: span 6;
   }
@@ -1086,5 +1128,11 @@
   .health-search-wrapper {
     flex: 1;
     width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .key-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }

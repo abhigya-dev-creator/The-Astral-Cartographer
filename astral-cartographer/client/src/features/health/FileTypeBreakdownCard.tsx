@@ -88,7 +88,7 @@ export function FileTypeBreakdownCard({
               color: 'var(--color-text-supporting)',
               fontFamily: 'var(--font-mono)',
             }}
-            title={`Analyzed: ${analyzedCount} source modules of ${totalCount} total files`}
+            title={`Analyzed: ${analyzedCount.toLocaleString()} source modules of ${totalCount.toLocaleString()} total files`}
           >
             {Math.round((analyzedCount / totalCount) * 100)}% AST coverage
           </span>
@@ -127,9 +127,13 @@ export function FileTypeBreakdownCard({
             ))}
           </svg>
 
-          <div className="filetype-donut-center">
+          <div className="filetype-donut-center" title={`Total files: ${totalCount.toLocaleString()}`}>
             <span className="filetype-donut-total">
-              {totalCount > 0 ? totalCount.toLocaleString() : '0'}
+              {totalCount >= 10000
+                ? new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(totalCount)
+                : totalCount > 0
+                ? totalCount.toLocaleString()
+                : '0'}
             </span>
             <span className="filetype-donut-label">Files</span>
           </div>
@@ -143,7 +147,7 @@ export function FileTypeBreakdownCard({
               className="filetype-legend-item"
               onClick={() => onSelectLanguage?.(item.name)}
               style={{ cursor: onSelectLanguage ? 'pointer' : 'default' }}
-              title={`${item.name}: ${item.files} files (${item.percentage}%)${
+              title={`${item.name}: ${item.files.toLocaleString()} files (${item.percentage}%)${
                 item.supported ? ' - Full AST analysis supported' : ' - Partial/Regex analysis'
               }`}
             >

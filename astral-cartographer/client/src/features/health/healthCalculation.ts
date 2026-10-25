@@ -127,10 +127,10 @@ export function calculateHealthScore(
   const lowDeduction = Math.min(10, categorized.low.count * 1);
 
   const deductions = [
-    { label: `${categorized.critical.count} Critical Issues`, points: criticalDeduction },
-    { label: `${categorized.high.count} High Issues`, points: highDeduction },
-    { label: `${categorized.medium.count} Medium Issues`, points: mediumDeduction },
-    { label: `${categorized.low.count} Low Issues`, points: lowDeduction },
+    { label: `${categorized.critical.count.toLocaleString()} Critical Issues`, points: criticalDeduction },
+    { label: `${categorized.high.count.toLocaleString()} High Issues`, points: highDeduction },
+    { label: `${categorized.medium.count.toLocaleString()} Medium Issues`, points: mediumDeduction },
+    { label: `${categorized.low.count.toLocaleString()} Low Issues`, points: lowDeduction },
   ].filter((d) => d.points > 0);
 
   const totalDeductions = criticalDeduction + highDeduction + mediumDeduction + lowDeduction;
@@ -143,7 +143,7 @@ export function calculateHealthScore(
 
   let coverageNotice: string | undefined;
   if (coverage?.completeness === 'partial' || (codeFiles > 0 && analyzedFiles < codeFiles)) {
-    coverageNotice = `Analysis ran on ${analyzedFiles} of ${codeFiles} code files (${Math.round(
+    coverageNotice = `Analysis ran on ${analyzedFiles.toLocaleString()} of ${codeFiles.toLocaleString()} code files (${Math.round(
       (analyzedFiles / Math.max(1, codeFiles)) * 100
     )}% coverage). Non-AST languages receive approximate function/dependency metrics.`;
   }

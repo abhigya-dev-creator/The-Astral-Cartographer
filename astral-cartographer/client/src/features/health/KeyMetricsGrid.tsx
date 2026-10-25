@@ -8,6 +8,21 @@ interface KeyMetricsGridProps {
   atlas: AtlasData | null;
 }
 
+export function formatMetricValue(val: number | null | undefined): { display: string; full: string } {
+  if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
+    return { display: 'N/A', full: 'Not Available' };
+  }
+  const full = val.toLocaleString();
+  if (val >= 10000) {
+    const compact = new Intl.NumberFormat('en-US', {
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(val);
+    return { display: compact, full };
+  }
+  return { display: full, full };
+}
+
 export function KeyMetricsGrid({ analysis, atlas }: KeyMetricsGridProps) {
   const metrics: IAnalysisMetrics | undefined = analysis?.metrics;
 
@@ -15,17 +30,24 @@ export function KeyMetricsGrid({ analysis, atlas }: KeyMetricsGridProps) {
   const totalFiles = metrics?.totalFiles ?? (analysis?.files ? analysis.files.length : null);
   const codeFiles = metrics?.coverage?.codeFiles ?? totalFiles;
   const analyzedFiles = metrics?.coverage?.analyzedCodeFiles ?? (analysis?.files ? analysis.files.length : null);
+  const formattedFiles = formatMetricValue(totalFiles);
 
   // 2. Functions
   const totalFunctions =
     metrics?.functions !== undefined && metrics?.functions !== null
       ? metrics.functions
       : atlas
-      ? atlas.files.reduce((acc, f) => acc + f.functions.length, 0)
+      ? atlas.files.reduce((acc, f) => acc + (f.functions?.length || 0), 0)
       : null;
+  const formattedFunctions = formatMetricValue(
+    totalFunctions !== null && totalFunctions !== undefined
+      ? totalFunctions
+      : metrics?.coverage?.codeFiles === 0
+      ? null
+      : 0
+  );
 
   // 3. Dependencies
-  // Distinguish unique dependencies vs dependency links
   const totalDependencies =
     metrics?.dependencies !== undefined && metrics?.dependencies !== null
       ? metrics.dependencies
@@ -39,12 +61,14 @@ export function KeyMetricsGrid({ analysis, atlas }: KeyMetricsGridProps) {
       : atlas
       ? atlas.edges.length
       : null;
+  const formattedDependencies = formatMetricValue(totalDependencies);
 
   // 4. External Packages
   const externalPackagesCount =
     metrics?.dependencyMetrics?.externalPackages !== undefined
       ? metrics.dependencyMetrics.externalPackages
       : null;
+  const formattedPackages = formatMetricValue(externalPackagesCount);
 
   return (
     <div className="health-card health-col-4" id="section-key-metrics">
@@ -72,38 +96,34 @@ export function KeyMetricsGrid({ analysis, atlas }: KeyMetricsGridProps) {
           className="key-metric-tile"
           title={
             codeFiles && analyzedFiles
-              ? `Discovered files: ${totalFiles?.toLocaleString() ?? 'N/A'}. Analyzed code files: ${analyzedFiles.toLocaleString()} / ${codeFiles.toLocaleString()}`
-              : 'Total repository files'
+              ? `Discovered files: ${formattedFiles.full}. Analyzed code files: ${analyzedFiles.toLocaleString()} / ${codeFiles.toLocaleString()}`
+              : `Total repository files (${formattedFiles.full})`
           }
         >
           <div className="key-metric-icon-wrap" style={{ background: 'rgba(56, 107, 255, 0.18)', color: '#386BFF' }}>
-            <Folder size={20} />
+            <Folder size={18} />
           </div>
           <div className="key-metric-details">
-            <span className="key-metric-value">
-              {totalFiles !== null && totalFiles !== undefined ? totalFiles.toLocaleString() : 'N/A'}
+            <span className="key-metric-value" title={`Exact count: ${formattedFiles.full}`}>
+              {formattedFiles.display}
             </span>
-            <span className="key-metric-label">Total Files</span>
+            <span className="key-metric-label" title="Total Files">Total Files</span>
           </div>
         </div>
 
         {/* Metric 2: Functions */}
         <div
           className="key-metric-tile"
-          title="Total functions and methods detected across analyzed source modules"
+          title={`Total functions and methods detected across analyzed source modules (${formattedFunctions.full})`}
         >
           <div className="key-metric-icon-wrap" style={{ background: 'rgba(67, 217, 163, 0.18)', color: '#43D9A3' }}>
-            <Code2 size={20} />
+            <Code2 size={18} />
           </div>
           <div className="key-metric-details">
-            <span className="key-metric-value">
-              {totalFunctions !== null && totalFunctions !== undefined
-                ? totalFunctions.toLocaleString()
-                : metrics?.coverage?.codeFiles === 0
-                ? 'N/A'
-                : '0'}
+            <span className="key-metric-value" title={`Exact count: ${formattedFunctions.full}`}>
+              {formattedFunctions.display}
             </span>
-            <span className="key-metric-label">Functions</span>
+            <span className="key-metric-label" title="Functions">Functions</span>
           </div>
         </div>
 
@@ -112,38 +132,34 @@ export function KeyMetricsGrid({ analysis, atlas }: KeyMetricsGridProps) {
           className="key-metric-tile"
           title={
             localEdges !== null && localEdges !== undefined
-              ? `Total dependency links: ${totalDependencies?.toLocaleString() ?? '0'} (Internal edges: ${localEdges.toLocaleString()})`
-              : 'Total module dependency connections'
+              ? `Total dependency links: ${formattedDependencies.full} (Internal edges: ${localEdges.toLocaleString()})`
+              : `Total module dependency connections (${formattedDependencies.full})`
           }
         >
           <div className="key-metric-icon-wrap" style={{ background: 'rgba(255, 173, 102, 0.18)', color: '#FFAD66' }}>
-            <GitFork size={20} />
+            <GitFork size={18} />
           </div>
           <div className="key-metric-details">
-            <span className="key-metric-value">
-              {totalDependencies !== null && totalDependencies !== undefined
-                ? totalDependencies.toLocaleString()
-                : 'N/A'}
+            <span className="key-metric-value" title={`Exact count: ${formattedDependencies.full}`}>
+              {formattedDependencies.display}
             </span>
-            <span className="key-metric-label">Dependencies</span>
+            <span className="key-metric-label" title="Dependencies">Dependencies</span>
           </div>
         </div>
 
         {/* Metric 4: External Packages */}
         <div
           className="key-metric-tile"
-          title="Third-party npm packages referenced in import statements"
+          title={`Third-party npm packages referenced in import statements (${formattedPackages.full})`}
         >
           <div className="key-metric-icon-wrap" style={{ background: 'rgba(168, 85, 247, 0.18)', color: '#C084FC' }}>
-            <Package size={20} />
+            <Package size={18} />
           </div>
           <div className="key-metric-details">
-            <span className="key-metric-value">
-              {externalPackagesCount !== null && externalPackagesCount !== undefined
-                ? externalPackagesCount.toLocaleString()
-                : 'N/A'}
+            <span className="key-metric-value" title={`Exact count: ${formattedPackages.full}`}>
+              {formattedPackages.display}
             </span>
-            <span className="key-metric-label">External Packages</span>
+            <span className="key-metric-label" title="External Packages">External Packages</span>
           </div>
         </div>
       </div>

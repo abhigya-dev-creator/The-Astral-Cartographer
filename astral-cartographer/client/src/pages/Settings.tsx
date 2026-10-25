@@ -1,0 +1,1179 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Home,
+  Key,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Sliders,
+  Code2,
+  User,
+  Database,
+  Activity,
+  Check,
+  AlertCircle,
+  ExternalLink,
+  Trash2,
+  RotateCcw,
+  Plus,
+  X,
+  Copy,
+  LogOut,
+  Sparkles,
+  Server,
+  Network,
+} from 'lucide-react';
+import { useSettings, type RateLimitInfo } from '../context/settingsStore';
+import { useAuth } from '../context/AuthContext';
+import { useRepositoryStore } from '../context/repositoryStore';
+import CodeViewer from '../components/CodeViewer';
+import '../features/settings/settings.css';
+
+type SettingsTab = 'github' | 'analyzer' | 'visualizer' | 'account' | 'storage' | 'system';
+
+interface SystemHealthData {
+  backend: 'ok' | 'degraded' | 'error' | 'checking';
+  backendLatency?: number;
+  database: 'connected' | 'disconnected' | 'memory' | 'checking';
+  databaseMode?: string;
+  supabase: 'connected' | 'not-configured' | 'error';
+  lastChecked: number | null;
+}
+
+export default function Settings() {
+  const navigate = useNavigate();
+  const settings = useSettings();
+  const { user, signOut, isConfigured: isSupabaseConfigured } = useAuth();
+  const { repositories } = useRepositoryStore();
+
+  const [activeTab, setActiveTab] = useState<SettingsTab>('github');
+  const [showToken, setShowToken] = useState(false);
+  const [patInput, setPatInput] = useState(settings.githubToken);
+  const [newPatternInput, setNewPatternInput] = useState('');
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Modals
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    body: string;
+    action: () => void;
+  } | null>(null);
+
+  // System Health state
+  const [systemHealth, setSystemHealth] = useState<SystemHealthData>({
+    backend: 'checking',
+    database: 'checking',
+    supabase: isSupabaseConfigured ? 'connected' : 'not-configured',
+    lastChecked: null,
+  });
+
+  // Calculate local storage size
+  const [storageUsage, setStorageUsage] = useState<{ bytes: number; formatted: string }>({
+    bytes: 0,
+    formatted: '0 KB',
+  });
+
+  const triggerToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  };
+
+  const calculateStorage = () => {
+    try {
+      let total = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const val = localStorage.getItem(key) || '';
+          total += (key.length + val.length) * 2;
+        }
+      }
+      const kb = total / 1024;
+      const formatted = kb >= 1024 ? `${(kb / 1024).toFixed(2)} MB` : `${kb.toFixed(1)} KB`;
+      setStorageUsage({ bytes: total, formatted });
+    } catch {
+      setStorageUsage({ bytes: 0, formatted: 'Unknown' });
+    }
+  };
+
+  useEffect(() => {
+    calculateStorage();
+  }, [settings]);
+
+  // Ping backend health
+  const checkHealth = async () => {
+    setSystemHealth((prev) => ({ ...prev, backend: 'checking', database: 'checking' }));
+    const start = performance.now();
+    try {
+      const res = await fetch('/api/health');
+      const latency = Math.round(performance.now() - start);
+      if (res.ok) {
+        const data = await res.json();
+        setSystemHealth({
+          backend: 'ok',
+          backendLatency: latency,
+          database: data.database?.connected ? (data.database?.mode === 'memory' ? 'memory' : 'connected') : 'disconnected',
+          databaseMode: data.database?.mode,
+          supabase: isSupabaseConfigured ? 'connected' : 'not-configured',
+          lastChecked: Date.now(),
+        });
+      } else {
+        setSystemHealth({
+          backend: 'degraded',
+          backendLatency: latency,
+          database: 'disconnected',
+          supabase: isSupabaseConfigured ? 'connected' : 'not-configured',
+          lastChecked: Date.now(),
+        });
+      }
+    } catch {
+      setSystemHealth({
+        backend: 'error',
+        database: 'disconnected',
+        supabase: isSupabaseConfigured ? 'connected' : 'not-configured',
+        lastChecked: Date.now(),
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkHealth();
+  }, []);
+
+  // Save PAT
+  const handleSavePat = async () => {
+    const trimmed = patInput.trim();
+    settings.setGithubToken(trimmed);
+    triggerToast(trimmed ? 'GitHub token saved successfully.' : 'GitHub token removed.');
+    if (trimmed) {
+      try {
+        await settings.checkGitHubRateLimit();
+        triggerToast('Rate limit updated: 5,000 req/hr enabled.');
+      } catch (err: any) {
+        triggerToast(err?.message || 'Failed to verify token with GitHub', 'error');
+      }
+    } else {
+      settings.setRateLimitStatus(null);
+    }
+  };
+
+  // Remove PAT
+  const handleRemovePat = () => {
+    setPatInput('');
+    settings.setGithubToken('');
+    settings.setRateLimitStatus(null);
+    triggerToast('GitHub token removed. Anonymous rate limit active.');
+  };
+
+  // Rate limit check
+  const handleCheckRateLimit = async () => {
+    try {
+      const info = await settings.checkGitHubRateLimit();
+      if (info) {
+        triggerToast(`Rate limit: ${info.remaining.toLocaleString()} / ${info.limit.toLocaleString()} remaining.`);
+      }
+    } catch (err: any) {
+      triggerToast(err?.message || 'Failed to query GitHub rate limit', 'error');
+    }
+  };
+
+  // Add Ignored Pattern
+  const handleAddPattern = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newPatternInput.trim()) return;
+    settings.addIgnoredPattern(newPatternInput.trim());
+    setNewPatternInput('');
+    triggerToast('Pattern added to exclusion list.');
+  };
+
+  // Clear Local Cache
+  const handleClearCache = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Clear Local Cache?',
+      body: 'This will purge all locally cached repository summaries, analysis snapshots, and atlas graphs from browser storage. Your saved settings and server database records will remain intact.',
+      action: () => {
+        try {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && !key.startsWith('astral_cartographer_settings') && !key.startsWith('sb-')) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((k) => localStorage.removeItem(k));
+          calculateStorage();
+          triggerToast('Local cache cleared successfully.');
+        } catch {
+          triggerToast('Failed to clear local cache', 'error');
+        }
+        setConfirmModal(null);
+      },
+    });
+  };
+
+  // Reset to Defaults
+  const handleResetDefaults = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reset All Settings to Defaults?',
+      body: 'This will reset all code parsing rules, editor preferences, visual atlas toggles, and API token to their default factory values.',
+      action: () => {
+        settings.resetToDefaults();
+        setPatInput('');
+        triggerToast('All settings restored to defaults.');
+        setConfirmModal(null);
+      },
+    });
+  };
+
+  // User details
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const displayName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.user_metadata?.user_name ||
+    user?.email?.split('@')[0] ||
+    'Cartographer';
+  const initial = displayName.charAt(0).toUpperCase();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  // Sample code for live preview
+  const sampleCode = `// Astral Cartographer Live Editor Preview
+export interface RepositoryNode {
+  id: string;
+  name: string;
+  functions: number;
+}
+
+export function calculateMetrics(nodes: RepositoryNode[]): number {
+  return nodes.reduce((acc, curr) => acc + curr.functions, 0);
+}`;
+
+  return (
+    <div className="settings-page-container">
+      {/* Top Header Row */}
+      <header className="settings-header-row">
+        <div className="settings-header-left">
+          <nav className="settings-breadcrumb" aria-label="Breadcrumb">
+            <Link to="/home">
+              <Home size={14} />
+            </Link>
+            <span style={{ opacity: 0.5 }}>/</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Settings</span>
+          </nav>
+          <h1 className="settings-title">Settings</h1>
+          <p className="settings-subtitle">
+            Configure repository analysis preferences, GitHub credentials, visual performance, and account details.
+          </p>
+        </div>
+
+        <div className="settings-header-actions">
+          <button
+            type="button"
+            className="settings-btn settings-btn-secondary"
+            onClick={handleResetDefaults}
+            title="Restore all settings to factory defaults"
+          >
+            <RotateCcw size={14} />
+            <span>Reset to Defaults</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Layout: Sidebar Navigation + Content Panes */}
+      <div className="settings-layout">
+        {/* Navigation Tabs */}
+        <aside className="settings-nav" aria-label="Settings navigation">
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'github' ? 'active' : ''}`}
+            onClick={() => setActiveTab('github')}
+          >
+            <Key size={16} className="settings-nav-icon" />
+            <span>GitHub & API</span>
+          </button>
+
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'analyzer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('analyzer')}
+          >
+            <Sliders size={16} className="settings-nav-icon" />
+            <span>Codebase Analyzer</span>
+          </button>
+
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'visualizer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('visualizer')}
+          >
+            <Code2 size={16} className="settings-nav-icon" />
+            <span>Visualizer & Editor</span>
+          </button>
+
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'account' ? 'active' : ''}`}
+            onClick={() => setActiveTab('account')}
+          >
+            <User size={16} className="settings-nav-icon" />
+            <span>Account & Profile</span>
+          </button>
+
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'storage' ? 'active' : ''}`}
+            onClick={() => setActiveTab('storage')}
+          >
+            <Database size={16} className="settings-nav-icon" />
+            <span>Cache & Storage</span>
+          </button>
+
+          <button
+            type="button"
+            className={`settings-nav-item ${activeTab === 'system' ? 'active' : ''}`}
+            onClick={() => setActiveTab('system')}
+          >
+            <Activity size={16} className="settings-nav-icon" />
+            <span>System Health & About</span>
+          </button>
+        </aside>
+
+        {/* Content Pane */}
+        <main className="settings-content-pane">
+          {/* TAB 1: GitHub & API Integration */}
+          {activeTab === 'github' && (
+            <div className="settings-card" id="section-github">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <Key size={18} color="#6898FF" />
+                    <span>GitHub Personal Access Token (PAT)</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Configure a GitHub token to raise API limits from 60 to 5,000 requests per hour for large repositories.
+                  </p>
+                </div>
+
+                <a
+                  href="https://github.com/settings/tokens/new?scopes=public_repo&description=The%20Astral%20Cartographer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="settings-btn settings-btn-secondary"
+                  style={{ fontSize: 11.5 }}
+                >
+                  <ExternalLink size={13} />
+                  <span>Generate on GitHub</span>
+                </a>
+              </div>
+
+              {/* Token Input Field */}
+              <div className="settings-row-col">
+                <div className="settings-label-group">
+                  <label htmlFor="github-token" className="settings-label">
+                    Personal Access Token
+                  </label>
+                  <span className="settings-description">
+                    Tokens are saved strictly in your browser's private local storage and are sent only to GitHub's official endpoints.
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <div className="settings-input-wrap">
+                    <input
+                      id="github-token"
+                      type={showToken ? 'text' : 'password'}
+                      className="settings-input mono"
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      value={patInput}
+                      onChange={(e) => setPatInput(e.target.value)}
+                      autoComplete="off"
+                      spellCheck="false"
+                    />
+                    <button
+                      type="button"
+                      className="settings-input-btn-right"
+                      onClick={() => setShowToken(!showToken)}
+                      title={showToken ? 'Hide token' : 'Show token'}
+                      aria-label={showToken ? 'Hide token' : 'Show token'}
+                    >
+                      {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="settings-btn settings-btn-primary"
+                    onClick={handleSavePat}
+                  >
+                    <Check size={14} />
+                    <span>Save Token</span>
+                  </button>
+
+                  {settings.githubToken && (
+                    <button
+                      type="button"
+                      className="settings-btn settings-btn-danger"
+                      onClick={handleRemovePat}
+                      title="Remove token from local storage"
+                    >
+                      <Trash2 size={14} />
+                      <span>Remove</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Rate Limit Status Card */}
+              <div className="settings-stat-badge-box">
+                <div className="settings-stat-left">
+                  <div className="settings-stat-icon-wrap">
+                    <Activity size={20} />
+                  </div>
+                  <div className="settings-stat-details">
+                    <div className="settings-stat-number">
+                      {settings.rateLimitStatus
+                        ? `${settings.rateLimitStatus.remaining.toLocaleString()} / ${settings.rateLimitStatus.limit.toLocaleString()}`
+                        : settings.githubToken
+                        ? 'Token Saved (Not Checked)'
+                        : '60 / 60 (Anonymous)'}
+                    </div>
+                    <div className="settings-stat-label">
+                      {settings.rateLimitStatus ? (
+                        <>
+                          Resets at{' '}
+                          {new Date(settings.rateLimitStatus.reset * 1000).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}{' '}
+                          ({Math.max(0, Math.round((settings.rateLimitStatus.reset * 1000 - Date.now()) / 60000))} min remaining)
+                        </>
+                      ) : (
+                        'Click Check Rate Limit to ping GitHub endpoint'
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-secondary"
+                  onClick={handleCheckRateLimit}
+                  disabled={settings.isCheckingRateLimit}
+                >
+                  <RefreshCw
+                    size={14}
+                    className={settings.isCheckingRateLimit ? 'spin' : ''}
+                    style={{ animation: settings.isCheckingRateLimit ? 'spin 1s linear infinite' : 'none' }}
+                  />
+                  <span>{settings.isCheckingRateLimit ? 'Pinging GitHub...' : 'Check Rate Limit'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: Codebase Analyzer & Parsing Rules */}
+          {activeTab === 'analyzer' && (
+            <div className="settings-card" id="section-analyzer">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <Sliders size={18} color="#FFD166" />
+                    <span>Codebase Analyzer & Parsing Rules</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Control which directories are excluded from AST generation, file size caps, and recursion depth limits.
+                  </p>
+                </div>
+              </div>
+
+              {/* Excluded Patterns Tag List */}
+              <div className="settings-row-col">
+                <div className="settings-label-group">
+                  <label className="settings-label">Excluded Folders & Patterns</label>
+                  <span className="settings-description">
+                    Matching paths are skipped during directory traversal and deep AST indexing to conserve memory.
+                  </span>
+                </div>
+
+                <div className="settings-tag-list">
+                  {settings.ignoredPatterns.map((pat) => (
+                    <span key={pat} className="settings-tag-pill">
+                      <span>{pat}</span>
+                      <button
+                        type="button"
+                        className="settings-tag-remove-btn"
+                        onClick={() => settings.removeIgnoredPattern(pat)}
+                        title={`Remove ${pat}`}
+                        aria-label={`Remove pattern ${pat}`}
+                      >
+                        <X size={13} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                {/* Add new pattern input */}
+                <form onSubmit={handleAddPattern} style={{ display: 'flex', gap: 10, maxWidth: 360 }}>
+                  <input
+                    type="text"
+                    className="settings-input mono"
+                    placeholder="e.g. *.min.js, vendor, temp"
+                    value={newPatternInput}
+                    onChange={(e) => setNewPatternInput(e.target.value)}
+                  />
+                  <button type="submit" className="settings-btn settings-btn-secondary">
+                    <Plus size={14} />
+                    <span>Add</span>
+                  </button>
+                </form>
+              </div>
+
+              {/* Max File Size Threshold */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label htmlFor="max-file-size" className="settings-label">Max File Size Threshold</label>
+                  <span className="settings-description">
+                    Files exceeding this limit are treated as binary or bundled assets and skipped during function-level AST parsing.
+                  </span>
+                </div>
+
+                <div className="settings-range-wrap">
+                  <input
+                    id="max-file-size"
+                    type="range"
+                    min="50"
+                    max="2048"
+                    step="50"
+                    className="settings-range"
+                    value={settings.maxFileSizeKB}
+                    onChange={(e) => settings.setMaxFileSizeKB(Number(e.target.value))}
+                    aria-label="Max File Size Threshold"
+                  />
+                  <span className="settings-range-val">
+                    {settings.maxFileSizeKB >= 1024
+                      ? `${(settings.maxFileSizeKB / 1024).toFixed(1)} MB`
+                      : `${settings.maxFileSizeKB} KB`}
+                  </span>
+                </div>
+              </div>
+
+              {/* AST Depth Limit */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label htmlFor="ast-depth-limit" className="settings-label">Call-Graph & Dependency Depth Limit</label>
+                  <span className="settings-description">
+                    Maximum recursive hierarchy depth indexed for circular dependency detection and import chains.
+                  </span>
+                </div>
+
+                <div className="settings-range-wrap">
+                  <input
+                    id="ast-depth-limit"
+                    type="range"
+                    min="1"
+                    max="15"
+                    step="1"
+                    className="settings-range"
+                    value={settings.astDepthLimit}
+                    onChange={(e) => settings.setAstDepthLimit(Number(e.target.value))}
+                    aria-label="AST Call-Graph Depth Limit"
+                  />
+                  <span className="settings-range-val">{settings.astDepthLimit} levels</span>
+                </div>
+              </div>
+
+              {/* Supported Language Targets */}
+              <div className="settings-row-col">
+                <div className="settings-label-group">
+                  <label className="settings-label">Supported Parser Targets</label>
+                  <span className="settings-description">
+                    Toggle enabled Tree-sitter / Babel language grammars for AST dependency extraction.
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                  <div className="settings-stat-badge-box">
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>JavaScript / TypeScript</span>
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={settings.supportedLanguages.javascript && settings.supportedLanguages.typescript}
+                        onChange={(e) => {
+                          settings.setSupportedLanguage('javascript', e.target.checked);
+                          settings.setSupportedLanguage('typescript', e.target.checked);
+                        }}
+                      />
+                      <span className="settings-toggle-track" />
+                    </label>
+                  </div>
+
+                  <div className="settings-stat-badge-box">
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>Java</span>
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={settings.supportedLanguages.java}
+                        onChange={(e) => settings.setSupportedLanguage('java', e.target.checked)}
+                      />
+                      <span className="settings-toggle-track" />
+                    </label>
+                  </div>
+
+                  <div className="settings-stat-badge-box">
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>Python</span>
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={settings.supportedLanguages.python}
+                        onChange={(e) => settings.setSupportedLanguage('python', e.target.checked)}
+                      />
+                      <span className="settings-toggle-track" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Visualizer & Code Explorer Preferences */}
+          {activeTab === 'visualizer' && (
+            <div className="settings-card" id="section-visualizer">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <Code2 size={18} color="#38BDF8" />
+                    <span>Visualizer & Code Explorer Preferences</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Customize typography, line wrapping, and animation performance across the Code Explorer and Dependency Atlas.
+                  </p>
+                </div>
+              </div>
+
+              {/* Editor Font Size */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Editor Font Size</label>
+                  <span className="settings-description">
+                    Adjust text size for source code inspection across all preview panels.
+                  </span>
+                </div>
+
+                <div className="settings-segmented-group">
+                  {[12, 14, 16].map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      className={`settings-segmented-btn ${settings.editorFontSize === size ? 'active' : ''}`}
+                      onClick={() => settings.setEditorFontSize(size)}
+                    >
+                      {size}px
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab Spacing */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Tab Spacing</label>
+                  <span className="settings-description">
+                    Number of spaces rendered for code indentation.
+                  </span>
+                </div>
+
+                <div className="settings-segmented-group">
+                  {[2, 4].map((spacing) => (
+                    <button
+                      key={spacing}
+                      type="button"
+                      className={`settings-segmented-btn ${settings.editorTabSpacing === spacing ? 'active' : ''}`}
+                      onClick={() => settings.setEditorTabSpacing(spacing)}
+                    >
+                      {spacing} Spaces
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Word Wrap */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Word Wrap</label>
+                  <span className="settings-description">
+                    Wrap lines that exceed the editor viewport width instead of horizontal scrolling.
+                  </span>
+                </div>
+
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.editorWordWrap}
+                    onChange={(e) => settings.setEditorWordWrap(e.target.checked)}
+                  />
+                  <span className="settings-toggle-track" />
+                </label>
+              </div>
+
+              {/* Line Numbers */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Line Numbers</label>
+                  <span className="settings-description">
+                    Show left-hand line numbering in the code viewer gutter.
+                  </span>
+                </div>
+
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.editorLineNumbers}
+                    onChange={(e) => settings.setEditorLineNumbers(e.target.checked)}
+                  />
+                  <span className="settings-toggle-track" />
+                </label>
+              </div>
+
+              {/* Dependency Atlas View Mode */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Atlas Default View Mode</label>
+                  <span className="settings-description">
+                    Preferred initial projection when launching the Dependency Atlas.
+                  </span>
+                </div>
+
+                <div className="settings-segmented-group">
+                  <button
+                    type="button"
+                    className={`settings-segmented-btn ${settings.atlasViewMode === '2d' ? 'active' : ''}`}
+                    onClick={() => settings.setAtlasViewMode('2d')}
+                  >
+                    2D Hierarchical
+                  </button>
+                  <button
+                    type="button"
+                    className={`settings-segmented-btn ${settings.atlasViewMode === '3d' ? 'active' : ''}`}
+                    onClick={() => settings.setAtlasViewMode('3d')}
+                  >
+                    3D Force-Directed
+                  </button>
+                </div>
+              </div>
+
+              {/* Physics & Particle Animation */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Physics & Fluid Animations</label>
+                  <span className="settings-description">
+                    Simulate orbital node forces and particle glows. Disable on battery or low-spec devices for faster rendering.
+                  </span>
+                </div>
+
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={settings.atlasPhysicsEnabled}
+                    onChange={(e) => settings.setAtlasPhysicsEnabled(e.target.checked)}
+                  />
+                  <span className="settings-toggle-track" />
+                </label>
+              </div>
+
+              {/* Live Preview Box */}
+              <div className="settings-row-col">
+                <div className="settings-label-group">
+                  <label className="settings-label">Live Editor Preview</label>
+                  <span className="settings-description">
+                    Real-time preview of your current typography and indentation settings.
+                  </span>
+                </div>
+
+                <div style={{ height: 160, width: '100%' }}>
+                  <CodeViewer
+                    code={sampleCode}
+                    path="example.ts"
+                    label="Live Settings Preview"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: Account & Profile */}
+          {activeTab === 'account' && (
+            <div className="settings-card" id="section-account">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <User size={18} color="#C084FC" />
+                    <span>Account & Session Details</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Manage your active Supabase authenticated credentials and workspace session.
+                  </p>
+                </div>
+              </div>
+
+              {/* Profile Card */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 18,
+                  padding: '16px 20px',
+                  background: 'rgba(12, 20, 42, 0.65)',
+                  border: '1px solid rgba(135, 155, 255, 0.16)',
+                  borderRadius: 14,
+                }}
+              >
+                <div
+                  style={{
+                    width: 52,
+                    height: 52,
+                    borderRadius: '50%',
+                    background: 'var(--gradient-primary)',
+                    border: '2px solid rgba(184, 162, 255, 0.5)',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontWeight: 700,
+                    fontSize: 20,
+                    color: '#FFF',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                  }}
+                >
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    initial
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 16, fontWeight: 600, color: '#F3F6FF' }}>{displayName}</span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: '#43D9A3',
+                        background: 'rgba(67, 217, 163, 0.15)',
+                        border: '1px solid rgba(67, 217, 163, 0.3)',
+                        borderRadius: 12,
+                        padding: '1px 8px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Connected
+                    </span>
+                  </div>
+
+                  <span style={{ fontSize: 13, color: 'var(--color-text-supporting)' }}>
+                    {user?.email || 'Signed in via provider'}
+                  </span>
+
+                  <span style={{ fontSize: 11, color: '#77839C', fontFamily: 'var(--font-mono)' }}>
+                    ID: {user?.id || 'Local Development User'}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-danger"
+                  onClick={handleSignOut}
+                >
+                  <LogOut size={14} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+
+              {/* Session Information */}
+              <div className="settings-row-col">
+                <div className="settings-label-group">
+                  <label className="settings-label">Security & Authentication</label>
+                  <span className="settings-description">
+                    Authentication is secured via Supabase JWT tokens with automatic session refresh.
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+                  <div className="settings-stat-badge-box">
+                    <div className="settings-stat-details">
+                      <span className="settings-stat-label">Identity Provider</span>
+                      <span className="settings-stat-number" style={{ fontSize: 13 }}>
+                        {user?.app_metadata?.provider?.toUpperCase() || (user?.email ? 'EMAIL / PASSWORD' : 'SUPABASE OAUTH')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="settings-stat-badge-box">
+                    <div className="settings-stat-details">
+                      <span className="settings-stat-label">Session Status</span>
+                      <span className="settings-stat-number" style={{ fontSize: 13, color: '#43D9A3' }}>
+                        ACTIVE & VERIFIED
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: Cache & Storage Management */}
+          {activeTab === 'storage' && (
+            <div className="settings-card" id="section-storage">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <Database size={18} color="#FF717A" />
+                    <span>Cache & Data Storage</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Manage client-side cached graphs, repository metadata, and local analysis snapshots.
+                  </p>
+                </div>
+              </div>
+
+              {/* Storage Footprint */}
+              <div className="settings-stat-badge-box">
+                <div className="settings-stat-left">
+                  <div className="settings-stat-icon-wrap" style={{ background: 'rgba(255, 113, 122, 0.15)', color: '#FF717A' }}>
+                    <Database size={20} />
+                  </div>
+                  <div className="settings-stat-details">
+                    <div className="settings-stat-number">{storageUsage.formatted}</div>
+                    <div className="settings-stat-label">Approximate Local Storage Footprint across browser sessions</div>
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'right', fontSize: 12, color: '#A7B4CC' }}>
+                  <div>{repositories.length} Cached Repositories</div>
+                </div>
+              </div>
+
+              {/* Clear Local Cache Action */}
+              <div className="settings-row border-bottom">
+                <div className="settings-label-group">
+                  <label className="settings-label">Flush Client-Side Cache</label>
+                  <span className="settings-description">
+                    Removes local cached graph projections and repository snapshots. Backend databases and analysis histories remain untouched.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-secondary"
+                  onClick={handleClearCache}
+                >
+                  <Trash2 size={14} color="#FFAD66" />
+                  <span>Clear Local Cache</span>
+                </button>
+              </div>
+
+              {/* Factory Reset */}
+              <div className="settings-row">
+                <div className="settings-label-group">
+                  <label className="settings-label">Factory Reset Preferences</label>
+                  <span className="settings-description">
+                    Restore all settings, ignored file patterns, editor typography, and token configurations to default values.
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-danger"
+                  onClick={handleResetDefaults}
+                >
+                  <RotateCcw size={14} />
+                  <span>Reset All to Defaults</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: System Health & About */}
+          {activeTab === 'system' && (
+            <div className="settings-card" id="section-system">
+              <div className="settings-card-header">
+                <div className="settings-card-title-group">
+                  <h2 className="settings-card-title">
+                    <Activity size={18} color="#43D9A3" />
+                    <span>System Health & Connectivity</span>
+                  </h2>
+                  <p className="settings-card-subtitle">
+                    Live operational telemetry and component status for connected services.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="settings-btn settings-btn-secondary"
+                  onClick={checkHealth}
+                  style={{ fontSize: 11.5 }}
+                >
+                  <RefreshCw
+                    size={13}
+                    className={systemHealth.backend === 'checking' ? 'spin' : ''}
+                    style={{ animation: systemHealth.backend === 'checking' ? 'spin 1s linear infinite' : 'none' }}
+                  />
+                  <span>Refresh Health</span>
+                </button>
+              </div>
+
+              {/* Live Health Indicators Grid */}
+              <div className="settings-health-grid">
+                {/* Node 1: Analysis Backend */}
+                <div className="settings-health-node">
+                  <div className="settings-health-top">
+                    <span className="settings-health-name">Analysis Backend API</span>
+                    <span className={`settings-health-pill ${systemHealth.backend}`}>
+                      {systemHealth.backend === 'checking'
+                        ? 'Checking...'
+                        : systemHealth.backend === 'ok'
+                        ? 'Operational'
+                        : 'Offline'}
+                    </span>
+                  </div>
+                  <div className="settings-health-desc">
+                    Node.js & Express service running on port 5000.
+                    {systemHealth.backendLatency ? ` Latency: ${systemHealth.backendLatency}ms` : ''}
+                  </div>
+                </div>
+
+                {/* Node 2: Database (MongoDB) */}
+                <div className="settings-health-node">
+                  <div className="settings-health-top">
+                    <span className="settings-health-name">Repository Database</span>
+                    <span
+                      className={`settings-health-pill ${
+                        systemHealth.database === 'connected' || systemHealth.database === 'memory' ? 'ok' : 'error'
+                      }`}
+                    >
+                      {systemHealth.database === 'checking'
+                        ? 'Checking...'
+                        : systemHealth.database === 'connected'
+                        ? 'Connected'
+                        : systemHealth.database === 'memory'
+                        ? 'Memory Mode'
+                        : 'Disconnected'}
+                    </span>
+                  </div>
+                  <div className="settings-health-desc">
+                    {systemHealth.databaseMode === 'memory'
+                      ? 'In-memory MongoDB instance active for rapid development.'
+                      : 'Persistent MongoDB cluster active for repository records.'}
+                  </div>
+                </div>
+
+                {/* Node 3: Supabase Auth */}
+                <div className="settings-health-node">
+                  <div className="settings-health-top">
+                    <span className="settings-health-name">Supabase Cloud Auth</span>
+                    <span
+                      className={`settings-health-pill ${
+                        systemHealth.supabase === 'connected' ? 'ok' : 'degraded'
+                      }`}
+                    >
+                      {systemHealth.supabase === 'connected' ? 'Connected' : 'Not Configured'}
+                    </span>
+                  </div>
+                  <div className="settings-health-desc">
+                    {systemHealth.supabase === 'connected'
+                      ? 'OAuth, secure session cookies, and JWT verification enabled.'
+                      : 'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable.'}
+                  </div>
+                </div>
+              </div>
+
+              {/* About & Engine Specs */}
+              <div
+                style={{
+                  marginTop: 12,
+                  padding: '16px 20px',
+                  background: 'rgba(7, 12, 27, 0.65)',
+                  border: '1px solid rgba(135, 155, 255, 0.14)',
+                  borderRadius: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 16,
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F3F6FF' }}>
+                    The Astral Cartographer
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-supporting)', marginTop: 2 }}>
+                    v1.0.0 · AST Architectural Map Engine · Built with React, TypeScript & Tree-sitter
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <a
+                    href="https://github.com/abhigya-dev-creator/The-Astral-Cartographer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="settings-btn settings-btn-secondary"
+                    style={{ fontSize: 11.5 }}
+                  >
+                    <ExternalLink size={13} />
+                    <span>Documentation</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Floating Feedback Toast */}
+      {toastMessage && (
+        <div className={`settings-toast ${toastMessage.type}`} role="status">
+          {toastMessage.type === 'success' ? (
+            <Check size={16} color="#43D9A3" />
+          ) : (
+            <AlertCircle size={16} color="#FF717A" />
+          )}
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModal && confirmModal.isOpen && (
+        <div className="settings-modal-backdrop" onClick={() => setConfirmModal(null)}>
+          <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="settings-modal-title">{confirmModal.title}</h3>
+            <p className="settings-modal-body">{confirmModal.body}</p>
+            <div className="settings-modal-footer">
+              <button
+                type="button"
+                className="settings-btn settings-btn-secondary"
+                onClick={() => setConfirmModal(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="settings-btn settings-btn-danger"
+                onClick={confirmModal.action}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,118 @@
+/* Repo Selector Dropdown & Tooltip Styles */
+
+.repo-selector-container {
+  position: relative;
+}
+
+.explorer-repo-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(7, 12, 27, 0.75);
+  border: 1px solid rgba(135, 155, 255, 0.25);
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 40px;
+  color: #F3F6FF;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.15s ease;
+  user-select: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.explorer-repo-select-btn:hover {
+  background: rgba(14, 25, 52, 0.85);
+  border-color: rgba(135, 155, 255, 0.45);
+}
+
+.explorer-repo-select-btn:focus-visible {
+  outline: 2px solid rgba(135, 155, 255, 0.6);
+  outline-offset: 1px;
+}
+
+.explorer-repo-select-btn.open {
+  border-color: rgba(135, 155, 255, 0.5);
+  background: rgba(14, 25, 52, 0.9);
+}
+
+/* Custom Cosmic Tooltip */
+.repo-selector-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(7, 12, 27, 0.96);
+  border: 1px solid rgba(135, 155, 255, 0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  color: #EAF0FF;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(56, 107, 255, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: repoTooltipFadeIn 0.15s ease-out;
+}
+
+@keyframes repoTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.repo-selector-tooltip-title {
+  font-weight: 600;
+  color: #F3F6FF;
+}
+
+.repo-selector-tooltip-meta {
+  font-size: 10.5px;
+  color: #A7B4CC;
+}
+
+/* Dropdown Menu */
+.explorer-repo-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  background: rgba(7, 12, 27, 0.96);
+  border: 1px solid rgba(135, 155, 255, 0.3);
+  border-radius: 14px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 107, 255, 0.15);
+  padding: 10px;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  animation: repoDropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes repoDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

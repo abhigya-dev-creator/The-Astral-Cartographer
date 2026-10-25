@@ -87,8 +87,12 @@ export function IssuesOverviewCard({
             ))}
           </svg>
 
-          <div className="issues-donut-center">
-            <span className="issues-donut-total">{totalIssues}</span>
+          <div className="issues-donut-center" title={`Total issues: ${totalIssues.toLocaleString()}`}>
+            <span className="issues-donut-total">
+              {totalIssues >= 10000
+                ? new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(totalIssues)
+                : totalIssues.toLocaleString()}
+            </span>
             <span className="issues-donut-label">Issues Found</span>
           </div>
         </div>
@@ -97,19 +101,20 @@ export function IssuesOverviewCard({
         <div className="issues-legend-list">
           {levels.map((lvl) => {
             const cat = categories[lvl];
+            const count = cat?.count ?? 0;
             return (
               <button
                 key={lvl}
                 type="button"
                 className="issues-legend-item"
                 onClick={() => onSelectSeverity(lvl)}
-                title={`Click to inspect ${cat.count} ${cat.label} issues`}
+                title={`Click to inspect ${count.toLocaleString()} ${cat?.label || lvl} issues`}
               >
                 <div className="issues-legend-left">
-                  <span className="issues-legend-dot" style={{ background: cat.dotColor }} />
-                  <span className="issues-legend-name">{cat.label}</span>
+                  <span className="issues-legend-dot" style={{ background: cat?.dotColor || '#77839C' }} />
+                  <span className="issues-legend-name">{cat?.label || lvl}</span>
                 </div>
-                <span className="issues-legend-count">{cat.count}</span>
+                <span className="issues-legend-count">{count.toLocaleString()}</span>
               </button>
             );
           })}

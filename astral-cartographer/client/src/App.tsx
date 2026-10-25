@@ -14,6 +14,7 @@ const CodeExplorer = lazy(() => import('./pages/CodeExplorer'));
 const ArchitecturalHealth = lazy(() => import('./pages/ArchitecturalHealth'));
 const OnboardingPathfinder = lazy(() => import('./pages/OnboardingPathfinder'));
 const ReportsBenchmarks = lazy(() => import('./pages/ReportsBenchmarks'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
           <Route path="/health" element={<Suspense fallback={null}><ArchitecturalHealth /></Suspense>} />
           <Route path="/pathfinder" element={<Suspense fallback={null}><OnboardingPathfinder /></Suspense>} />
           <Route path="/reports" element={<Suspense fallback={null}><ReportsBenchmarks /></Suspense>} />
-          <Route path="/settings" element={<Placeholder title="Settings" subtitle="Customize your experience and manage your repositories." />} />
+          <Route path="/settings" element={<Suspense fallback={null}><Settings /></Suspense>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

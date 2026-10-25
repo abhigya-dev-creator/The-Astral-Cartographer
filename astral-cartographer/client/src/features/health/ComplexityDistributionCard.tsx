@@ -32,7 +32,7 @@ export function ComplexityDistributionCard({
           }}
           title="Distribution based on cyclomatic complexity decision branches or function count"
         >
-          {totalFilesEvaluated > 0 ? `${totalFilesEvaluated} modules` : 'N/A'}
+          {totalFilesEvaluated > 0 ? `${totalFilesEvaluated.toLocaleString()} modules` : 'N/A'}
         </span>
       </div>
 
@@ -45,7 +45,7 @@ export function ComplexityDistributionCard({
               key={bucket.label}
               className="complexity-bar-col"
               onClick={() => onSelectBucket(bucket)}
-              title={`${bucket.label} (${bucket.range}): ${bucket.count} files. Click to inspect.`}
+              title={`${bucket.label} (${bucket.range}): ${bucket.count.toLocaleString()} files. Click to inspect.`}
             >
               <div className="complexity-bar-track">
                 <div
