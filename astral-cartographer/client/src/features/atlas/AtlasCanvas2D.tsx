@@ -7,6 +7,9 @@ import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 import { relatedInOrder } from './graph';
 import { isExternalPath } from './externals';
 import type { AtlasModel } from './model';
+import type { IArchitecturalIssue } from '../../lib/api';
+import { explainFinding } from './findingText';
+import { ISOLATE_COLORS } from './palette';
 
 const SHOW_PERF = import.meta.env.DEV && typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('perf');
 const SEVERITY_RANK = { info: 0, warning: 1, error: 2 } as const;
@@ -18,7 +21,7 @@ interface Props {
 }
 
 /** Plain-language summary of a hit, for the tooltip and the screen-reader announcement. */
-function describe(model: AtlasModel, hit: Hit, findingsCount: (p: string) => number): { title: string; lines: string[] } {
+function describe(model: AtlasModel, hit: Hit, findingsOf: (p: string) => IArchitecturalIssue[]): { title: string; lines: string[] } {
   if (hit.type === 'file') {
     const f = model.fileByPath.get(hit.path);
     if (!f) return { title: hit.path, lines: [] };
@@ -29,8 +32,10 @@ function describe(model: AtlasModel, hit: Hit, findingsCount: (p: string) => num
     if (f.kind === 'code') lines.push(`Imports ${out} file${out === 1 ? '' : 's'} · imported by ${inc}`);
     else lines.push(inc ? `Imported by ${inc} file${inc === 1 ? '' : 's'} · no dependency data for this type` : 'No dependency data for this file type');
     if (model.cycleOf.has(f.path)) lines.push('Part of a circular dependency');
-    const n = findingsCount(f.path);
-    if (n) lines.push(`${n} architectural finding${n === 1 ? '' : 's'}`);
+    // possible design problems, in plain words (details in the Findings tab)
+    const found = findingsOf(f.path);
+    for (const issue of found.slice(0, 2)) lines.push(`⚠ ${explainFinding(issue).short}`);
+    if (found.length > 2) lines.push(`⚠ and ${found.length - 2} more: see the Findings tab`);
     return { title: f.name, lines };
   }
   if (hit.type === 'folder') {
@@ -333,14 +338,14 @@ export default function AtlasCanvas2D({ onLayout, fullscreen, onToggleFullscreen
   };
 
   const legend = layout ? [...layout.colorByTop.entries()].sort(([a], [b]) => (a < b ? -1 : 1)) : [];
-  const findingsCount = (p: string) => findings.get(p)?.length ?? 0;
-  const tip = tooltip && model ? describe(model, tooltip.hit, findingsCount) : null;
+  const findingsOf = (p: string) => findings.get(p) ?? [];
+  const tip = tooltip && model ? describe(model, tooltip.hit, findingsOf) : null;
   const stageW = wrapRef.current?.clientWidth ?? 0;
   const stageH = wrapRef.current?.clientHeight ?? 0;
   const announcement = useMemo(() => {
     if (!model || !selected) return 'No selection.';
     if (selected.type === 'file' || selected.type === 'folder' || selected.type === 'link' || selected.type === 'folderLink') {
-      const d = describe(model, selected, findingsCount);
+      const d = describe(model, selected, findingsOf);
       return `Selected ${d.title}. ${d.lines.filter((l) => !/^Click/.test(l)).join('. ')}.`;
     }
     return '';
@@ -392,6 +397,11 @@ export default function AtlasCanvas2D({ onLayout, fullscreen, onToggleFullscreen
       {isolate && (
         <div className="atlas-banner" role="status">
           Isolated: <strong>{model?.fileByPath.get(isolate.path)?.name}</strong> and {isolate.members.size - 1} related file{isolate.members.size === 2 ? '' : 's'} ({isolate.depth} step{isolate.depth > 1 ? 's' : ''})
+          <span className="atlas-banner-legend" aria-label="Colour key">
+            <span><i style={{ background: ISOLATE_COLORS.uses }} /> it imports</span>
+            <span><i style={{ background: ISOLATE_COLORS.usedBy }} /> imports it</span>
+            {isolate.depth > 1 && <span><i style={{ background: ISOLATE_COLORS.further }} /> further away</span>}
+          </span>
           <button type="button" className="auth-link" onClick={() => useAtlasStore.getState().setIsolate(null)}>Exit isolation</button>
         </div>
       )}

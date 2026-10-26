@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { summarizeFindings } from './findingText';
 import {
   AlertTriangle, ChevronDown, ChevronRight, ChevronsDownUp, File, FileCode2, FileCog, FileImage, FileJson, FileText, Folder, FolderOpen, LocateFixed, Search,
 } from 'lucide-react';
@@ -128,7 +129,7 @@ export default function RepoExplorer() {
     <>
       {model.cycleOf.has(n.path) && <span className="atlas-dot" title="Part of a circular dependency" style={{ background: RELATION_COLORS.cycle }} />}
       {(findings.get(n.path)?.length ?? 0) > 0 && (
-        <span title={`${findings.get(n.path)!.length} architectural finding(s)`} style={{ display: 'inline-flex' }}>
+        <span title={`${summarizeFindings(findings.get(n.path)!)}. Select the file and open its Findings tab to see them explained.`} style={{ display: 'inline-flex' }}>
           <AlertTriangle size={12} color={SEVERITY_COLOR[findings.get(n.path)!.some((i) => i.severity === 'error') ? 'error' : findings.get(n.path)!.some((i) => i.severity === 'warning') ? 'warning' : 'info']} />
         </span>
       )}

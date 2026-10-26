@@ -6,6 +6,7 @@ import { fetchFileSource, type FetchSourceResult } from '../../lib/fetchFileSour
 import { useAtlasStore, typeGroup } from './atlasStore';
 import { RELATION_COLORS } from './palette';
 import { isExternalPath, EXTERNAL_REASON } from './externals';
+import { explainFinding } from './findingText';
 import { buildSearchIndex, search } from './search';
 import { edgesBetweenTopFolders } from './render2d';
 import type { AtlasModel, Edge, FileNode, FolderNode } from './model';
@@ -162,7 +163,11 @@ function FileDetails({ model, file }: { model: AtlasModel; file: FileNode }) {
           <span title="Files this file imports">→ {resolved.length}</span>
           <span title="Files that import this file">← {dependents.length}</span>
           {cycle && <span style={{ color: RELATION_COLORS.cycle }}>cycle</span>}
-          {findings.length > 0 && <span style={{ color: SEVERITY_COLOR[findings.some((f) => f.severity === 'error') ? 'error' : 'warning'] }}>{findings.length} finding{findings.length === 1 ? '' : 's'}</span>}
+          {findings.length > 0 && (
+            <button type="button" className="atlas-meta-link" style={{ color: SEVERITY_COLOR[findings.some((f) => f.severity === 'error') ? 'error' : 'warning'] }} onClick={() => setTab('findings')} title="Open the Findings tab">
+              ⚠ {findings.length} possible problem{findings.length === 1 ? '' : 's'}
+            </button>
+          )}
         </div>
       )}
       <div className="atlas-actions-row">
@@ -266,27 +271,46 @@ function FileDetails({ model, file }: { model: AtlasModel; file: FileNode }) {
         {tab === 'findings' && (
           <>
             {findingsNote && <p className="atlas-count">{findingsNote}</p>}
-            {!findingsNote && findings.length === 0 && <p className="atlas-count">No architectural findings for this file.</p>}
+            {!findingsNote && findings.length === 0 && <p className="atlas-count">No design problems were found in this file.</p>}
+            {findings.length > 0 && (
+              <p className="atlas-count" style={{ margin: '0 0 8px' }}>
+                Findings are possible design problems the analysis spotted in how files are organised and connected. They are not crashes or test failures.
+              </p>
+            )}
             <ul className="atlas-list">
-              {findings.map((f, i) => (
-                <li key={f.id ?? `${f.rule}-${i}`} className="atlas-finding">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                    <span className="atlas-badge" style={{ color: SEVERITY_COLOR[f.severity], borderColor: SEVERITY_COLOR[f.severity] }}>{f.severity}</span>
-                    <strong style={{ fontSize: 12, color: '#EAF0FF' }}>{f.rule}</strong>
-                    {f.confidence && <span className="atlas-count">{f.confidence === 'confirmed' ? 'confirmed' : 'heuristic'}</span>}
-                    {typeof f.line === 'number' && <LineChip line={f.line} onClick={() => showLine(f.line!)} title={`Show line ${f.line}`} />}
-                  </div>
-                  <div style={{ fontSize: 12, color: '#B8BBCB', marginTop: 3 }}>{f.description}</div>
-                  {(f.affectedFiles ?? []).filter((p) => p !== file.path).length > 0 && (
-                    <div style={{ fontSize: 11, color: '#77839C', marginTop: 3 }}>
-                      Also involves:{' '}
-                      {(f.affectedFiles ?? []).filter((p) => p !== file.path).slice(0, 6).map((p) => (
-                        <button key={p} type="button" className="auth-link" style={{ marginRight: 6, fontSize: 11 }} onClick={() => store().reveal({ type: 'file', path: p })} disabled={!model.fileByPath.has(p)}>{p.split('/').pop()}</button>
-                      ))}
+              {findings.map((f, i) => {
+                const plain = explainFinding(f);
+                const others = (f.affectedFiles ?? []).filter((p) => p !== file.path);
+                return (
+                  <li key={f.id ?? `${f.rule}-${i}`} className="atlas-finding">
+                    <div className="atlas-finding-head">
+                      <span className="atlas-badge" style={{ color: SEVERITY_COLOR[f.severity], borderColor: SEVERITY_COLOR[f.severity] }}>{plain.level}</span>
+                      {typeof f.line === 'number' && <LineChip line={f.line} onClick={() => showLine(f.line!)} title={`Show line ${f.line}`} />}
                     </div>
-                  )}
-                </li>
-              ))}
+                    <strong className="atlas-finding-title">{plain.headline}</strong>
+                    <dl className="atlas-finding-body">
+                      <dt>What we found</dt><dd>{plain.what}</dd>
+                      <dt>Why it matters</dt><dd>{plain.why}</dd>
+                      <dt>How to fix it</dt><dd>{plain.fix}</dd>
+                    </dl>
+                    {others.length > 0 && (
+                      <div className="atlas-finding-files">
+                        {f.type === 'circular_dependency' ? 'Files in the loop:' : 'Also involves:'}{' '}
+                        {others.slice(0, 8).map((p) => (
+                          <button key={p} type="button" className="auth-link" onClick={() => store().reveal({ type: 'file', path: p })} disabled={!model.fileByPath.has(p)} title={p}>{p.split('/').pop()}</button>
+                        ))}
+                        {others.length > 8 && <span> and {others.length - 8} more</span>}
+                      </div>
+                    )}
+                    <p className="atlas-finding-certainty">{plain.certainty}</p>
+                    <details className="atlas-finding-tech">
+                      <summary>Technical details</summary>
+                      <p><strong>{f.rule}</strong> ({f.severity}{f.confidence ? `, ${f.confidence}` : ''})</p>
+                      <p>{f.description}</p>
+                    </details>
+                  </li>
+                );
+              })}
             </ul>
           </>
         )}

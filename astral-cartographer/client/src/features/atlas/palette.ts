@@ -21,6 +21,23 @@ export const RELATION_COLORS = {
   unresolved: '#77839C',
 } as const;
 
+/**
+ * Isolate mode: neighbours get their own bright colours instead of their folder colour, so they stand out
+ * against the (mostly blue) folders around them. None of these is blue or red.
+ */
+export const ISOLATE_COLORS = {
+  /** the isolated file itself */
+  anchor: '#F4F7FF',
+  /** files the isolated file imports */
+  uses: '#3DF5C4',
+  /** files that import the isolated file */
+  usedBy: '#FFAD66',
+  /** files 2 or 3 steps away */
+  further: '#F06BD8',
+  /** lines between neighbours (not involving the isolated file) */
+  line: '#C8D3FF',
+} as const;
+
 let cached: string[] | null = null;
 
 export function folderPalette(): string[] {

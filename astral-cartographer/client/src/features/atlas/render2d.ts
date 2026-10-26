@@ -2,7 +2,7 @@ import type { AtlasModel, Edge, FileNode } from './model';
 import type { AtlasLayout, LCluster, LFile } from './layout';
 import { visualAnchor } from './layout';
 import { GridIndex } from './spatialIndex';
-import { RELATION_COLORS, withAlpha } from './palette';
+import { ISOLATE_COLORS, RELATION_COLORS, withAlpha } from './palette';
 import type { AtlasFilters, IsolateState, Selection } from './atlasStore';
 import { edgePassesFilters, filePassesFilters } from './filters';
 import { isExternalPath } from './externals';
@@ -502,6 +502,15 @@ export class AtlasRenderer2D {
     const tracePath = state.trace?.path ?? null;
     const traceSet = new Set(tracePath ?? []);
     const iso = state.isolate?.members ?? null;
+    // isolate mode: each neighbour's colour says how it relates to the isolated file
+    const isoRole = new Map<string, string>();
+    if (state.isolate && iso) {
+      const ip = state.isolate.path;
+      for (const e of model.outgoing.get(ip) ?? []) if (e.to && e.status === 'resolved' && iso.has(e.to)) isoRole.set(e.to, ISOLATE_COLORS.uses);
+      for (const e of model.incoming.get(ip) ?? []) if (iso.has(e.from) && !isoRole.has(e.from)) isoRole.set(e.from, ISOLATE_COLORS.usedBy);
+      for (const p of iso) if (p !== ip && !isoRole.has(p)) isoRole.set(p, ISOLATE_COLORS.further);
+      isoRole.set(ip, ISOLATE_COLORS.anchor);
+    }
     const selFolder = sel?.type === 'folder' ? model.folderByPath.get(sel.path) ?? null : null;
     const inSelFolder = (folderPath: string) => {
       if (!selFolder) return true;
@@ -515,7 +524,7 @@ export class AtlasRenderer2D {
       let a = 1;
       if (iso) a = iso.has(file.path) ? 1 : 0.07;
       if (tracePath) a = traceSet.has(file.path) ? 1 : Math.min(a, 0.12);
-      else if ((selFile || selLink) && !related.has(file.path)) a = Math.min(a, iso?.has(file.path) ? 0.55 : 0.16);
+      else if ((selFile || selLink) && !related.has(file.path)) a = Math.min(a, iso?.has(file.path) ? 1 : 0.16);
       if (selFolder && !inSelFolder(file.folder)) a = Math.min(a, 0.3);
       if (filtering && !filePassesFilters(file, filters, model, findingsAsLists)) a = Math.min(a, 0.12);
       return a;
@@ -609,14 +618,14 @@ export class AtlasRenderer2D {
       const inside: Array<{ e: Edge; color: string }> = [];
       for (const p of iso) for (const e of model.outgoing.get(p) ?? []) {
         if (e.to && e.status === 'resolved' && iso.has(e.to) && kindOk(e) && e.from !== selFile?.path && e.to !== selFile?.path) {
-          inside.push({ e, color: model.cycleEdges.has(e) ? RELATION_COLORS.cycle : '#8EA2D8' });
+          inside.push({ e, color: model.cycleEdges.has(e) ? RELATION_COLORS.cycle : ISOLATE_COLORS.line });
         }
       }
       edgesDrawn += this.drawEdgeList(model, layout, inside, k, t);
     }
     if (selFile && relEdges.length && !tracePath) {
       edgesDrawn += this.drawEdgeList(model, layout, relEdges.map(({ e, dir }) => ({
-        e, color: model.cycleEdges.has(e) ? RELATION_COLORS.cycle : dir === 'dep' ? RELATION_COLORS.dependency : RELATION_COLORS.dependent,
+        e, color: model.cycleEdges.has(e) ? RELATION_COLORS.cycle : dir === 'dep' ? (iso ? ISOLATE_COLORS.uses : RELATION_COLORS.dependency) : (iso ? ISOLATE_COLORS.usedBy : RELATION_COLORS.dependent),
       })), k, t, true);
     }
     if (selLink) {
@@ -685,14 +694,15 @@ export class AtlasRenderer2D {
       nodes++;
       const a = fileAlpha(f.file);
       const external = isExternalPath(f.file.path);
+      const color = isoRole.get(f.file.path) ?? f.color;
       ctx.globalAlpha = a;
-      if (p.r * k >= 2) ctx.drawImage(glowSprite(f.color), p.x - p.r * 2.6, p.y - p.r * 2.6, p.r * 5.2, p.r * 5.2);
+      if (p.r * k >= 2) ctx.drawImage(glowSprite(color), p.x - p.r * 2.6, p.y - p.r * 2.6, p.r * 5.2, p.r * 5.2);
       ctx.beginPath();
       if (external) {
         // external packages: diamonds, never confused with repository files
         ctx.moveTo(p.x, p.y - p.r * 1.25); ctx.lineTo(p.x + p.r * 1.25, p.y); ctx.lineTo(p.x, p.y + p.r * 1.25); ctx.lineTo(p.x - p.r * 1.25, p.y); ctx.closePath();
       } else ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = f.file.kind === 'code' || external ? withAlpha(f.color, 0.95) : withAlpha(f.color, 0.55);
+      ctx.fillStyle = f.file.kind === 'code' || external || isoRole.has(f.file.path) ? withAlpha(color, 0.95) : withAlpha(color, 0.55);
       ctx.fill();
       if (!external && p.r * k >= 6) drawFileGlyph(ctx, p.x, p.y, p.r * 0.55);
       if (f.file.parseError && p.r * k >= 3) {
@@ -720,7 +730,8 @@ export class AtlasRenderer2D {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r + (isSel ? 4 : 3) / k, 0, Math.PI * 2);
         ctx.lineWidth = (isSel ? 2.4 : 1.5) / k;
-        ctx.strokeStyle = isSel ? '#FFFFFF' : isHover ? 'rgba(234, 240, 255, 0.85)' : inTrace ? TRACE_COLOR : selLink ? LINK_COLOR : this.relationColor(model, selFile!, f.file.path);
+        const rel = selFile ? this.relationColor(model, selFile, f.file.path) : LINK_COLOR;
+        ctx.strokeStyle = isSel ? '#FFFFFF' : isHover ? 'rgba(234, 240, 255, 0.85)' : inTrace ? TRACE_COLOR : selLink ? LINK_COLOR : rel === RELATION_COLORS.cycle ? rel : isoRole.get(f.file.path) ?? rel;
         ctx.stroke();
       }
       ctx.globalAlpha = 1;

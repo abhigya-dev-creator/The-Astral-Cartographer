@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AlertCircle, AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Compass, Map as MapIcon, Minimize2, Network, Package, PanelRightClose, PanelRightOpen, RefreshCw, RotateCw } from 'lucide-react';
 import '../features/atlas/atlas.css';
@@ -7,6 +7,7 @@ import DetailsPanel from '../features/atlas/DetailsPanel';
 import FiltersMenu from '../features/atlas/FiltersMenu';
 import SearchBox from '../features/atlas/SearchBox';
 import RepoExplorer from '../features/atlas/RepoExplorer';
+import SideSplitter, { useExplorerShare } from '../features/atlas/SideSplitter';
 import { EXTERNAL_REASON } from '../features/atlas/externals';
 import { fetchAtlas } from '../features/atlas/atlasApi';
 import { useAtlasStore } from '../features/atlas/atlasStore';
@@ -90,6 +91,8 @@ export default function DependencyAtlas() {
   const [fullscreen, setFullscreen] = useState(false);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
   const [explorerCollapsed, setExplorerCollapsed] = useState(false);
+  const [explorerShare, setExplorerShare] = useExplorerShare();
+  const sideRef = useRef<HTMLElement>(null);
   const showExternal = useAtlasStore((s) => s.showExternal);
   const findingsOnly = useAtlasStore((s) => s.filters.findingsOnly);
   const findings = useAtlasStore((s) => s.findings);
@@ -319,7 +322,7 @@ export default function DependencyAtlas() {
           <button type="button" className="atlas-chip" aria-pressed={cyclesOnly} disabled={!cycles} onClick={() => store().setFilters({ cyclesOnly: !cyclesOnly })} title={cycles ? 'Show only files in circular dependencies' : 'No circular dependencies were found'}>
             <span className="atlas-dot" style={{ background: RELATION_COLORS.cycle }} /> Cycles ({cycles})
           </button>
-          <button type="button" className="atlas-chip" aria-pressed={findingsOnly} disabled={!findingFiles} onClick={() => store().setFilters({ findingsOnly: !findingsOnly })} title={findingFiles ? 'Show only files with architectural findings' : 'No architectural findings for this map'}>
+          <button type="button" className="atlas-chip" aria-pressed={findingsOnly} disabled={!findingFiles} onClick={() => store().setFilters({ findingsOnly: !findingsOnly })} title={findingFiles ? 'Findings are possible design problems (files that depend on each other in a loop, files that are too big or too connected). Files with findings have a warning triangle on the map. Click to show only those files.' : 'No design problems were found in this map'}>
             <AlertTriangle size={12} color="#FFD166" /> Findings ({findingFiles})
           </button>
           <button type="button" className="atlas-chip" aria-pressed={showExternal} onClick={() => store().setShowExternal(!showExternal)} title="Show imported npm packages and built-in modules as nodes (diamonds) in their own group">
@@ -392,15 +395,16 @@ export default function DependencyAtlas() {
         </section>
 
         {!panelCollapsed && (
-          <aside id="atlas-side-panel" className="atlas-side card" aria-label="Repository explorer and details">
+          <aside id="atlas-side-panel" ref={sideRef} className="atlas-side card" aria-label="Repository explorer and details">
             {ready ? (
               <>
-                <section className={`atlas-side-section atlas-explorer-section${explorerCollapsed ? ' is-collapsed' : ''}${selected ? ' has-details' : ''}`} aria-label="Repository explorer">
+                <section className={`atlas-side-section atlas-explorer-section${explorerCollapsed ? ' is-collapsed' : ''}${selected ? ' has-details' : ''}`} aria-label="Repository explorer" style={selected && !explorerCollapsed ? { flex: `0 0 ${Math.round(explorerShare * 100)}%` } : undefined}>
                   <button type="button" className="atlas-section-head" onClick={() => setExplorerCollapsed((v) => !v)} aria-expanded={!explorerCollapsed}>
                     {explorerCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />} Repository Explorer
                   </button>
                   {!explorerCollapsed && <RepoExplorer />}
                 </section>
+                {selected && !explorerCollapsed && <SideSplitter share={explorerShare} onChange={setExplorerShare} containerRef={sideRef} />}
                 {selected && (
                   <section className="atlas-side-section atlas-details-section" aria-label="Selection details">
                     <DetailsPanel />
