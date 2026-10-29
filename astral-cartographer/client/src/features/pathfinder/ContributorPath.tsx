@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, ArrowRight, Bookmark, BookmarkCheck, CheckCircle2, Clock, ExternalLink, FileCode2, FilePlus2, FileText, Info, MessageSquareWarning, Search } from 'lucide-react';
 import { codeViewLink, githubFileUrl } from '../../lib/codeLinks';
 import Companion from './Companion';
+import { askWithAI } from './askAI';
 import { answerContributor, contributorSuggestions } from './companionAnswers';
 import { filterOpportunities, type Certainty, type Opportunity, type OpportunityResult } from './opportunities';
 import { plural, type RepoFacts } from './repoFacts';
@@ -32,8 +33,15 @@ export default function ContributorPath({ facts, result, repo, onLearnFile }: Pr
   const suggestions = useMemo(() => contributorSuggestions(selected), [selected]);
   const filtered = filters.type !== 'all' || filters.effort !== 'all' || filters.area !== 'all' || filters.savedOnly;
 
-  const ask = (q: { id?: string; text: string }) => {
-    store().pushChat('contributor', { role: 'user', text: q.text }, { role: 'companion', answer: answerContributor(q.id ? { id: q.id } : { text: q.text }, facts, selected, all) });
+  const ask = async (q: { id?: string; text: string }) => {
+    const before = chat;
+    store().pushChat('contributor', { role: 'user', text: q.text });
+    const main = selected?.files.find((f) => f.main && f.exists)?.path ?? null;
+    const context = selected
+      ? `Selected contribution opportunity: ${selected.title}. ${selected.summary}\nEvidence: ${selected.evidence.map((e) => e.text).join(' ')}\nFiles: ${selected.files.map((f) => `${f.path} (${f.role})`).join('; ')}\nSuggested steps: ${selected.steps.join(' ')}`
+      : '';
+    const answer = await askWithAI(repo._id, q.text, main, before, context, () => answerContributor(q.id ? { id: q.id } : { text: q.text }, facts, selected, all));
+    store().pushChat('contributor', { role: 'companion', answer });
   };
 
   return (

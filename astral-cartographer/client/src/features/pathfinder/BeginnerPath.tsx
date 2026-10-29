@@ -1,13 +1,17 @@
-import { useMemo, useRef, type KeyboardEvent } from 'react';
+import { useMemo, useRef, useState, useEffect, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle2, Circle, CircleDot, ExternalLink, FileText, GitFork, Package, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, Circle, CircleDot, ExternalLink, FileText, GitFork, Package, RotateCcw, Layers, Compass } from 'lucide-react';
 import { codeViewLink, githubFileUrl, type CodeLinkRepo } from '../../lib/codeLinks';
 import Companion from './Companion';
+import { askWithAI } from './askAI';
 import SourcePreview from './SourcePreview';
 import { answerBeginner, beginnerSuggestions, explainFile } from './companionAnswers';
 import { nextStepReason, type LearningStep } from './learningPath';
 import { languageOfFile, plural, type RepoFacts } from './repoFacts';
 import { usePathfinderStore, type BeginnerTab } from './pathfinderStore';
+import { BeginnerRoadmap } from './BeginnerRoadmap';
+import { FileExplanationCard } from './FileExplanationCard';
+import { api, type DynamicRoadmapResult, type FileExplanation } from '../../lib/api';
 
 export interface PathRepo extends CodeLinkRepo { commitSha: string }
 
@@ -61,50 +65,188 @@ interface Props { facts: RepoFacts; steps: LearningStep[]; repo: PathRepo; onExp
 export default function BeginnerPath({ facts, steps, repo, onExploreContributing }: Props) {
   const path = usePathfinderStore((s) => s.beginnerPath);
   const chat = usePathfinderStore((s) => s.chats.beginner);
+  const completed = usePathfinderStore((s) => s.completed);
   const store = usePathfinderStore.getState;
   const status = useStepStatus();
   const idx = steps.findIndex((s) => s.path === path);
   const step = idx >= 0 ? steps[idx] : null;
   const suggestions = useMemo(() => beginnerSuggestions(step, path), [step, path]);
 
-  const ask = (q: { id?: string; text: string }) => {
-    store().pushChat('beginner', { role: 'user', text: q.text }, { role: 'companion', answer: answerBeginner(q.id ? { id: q.id } : { text: q.text }, facts, path, steps) });
+  // Dynamic learning state
+  const [roadmap, setRoadmap] = useState<DynamicRoadmapResult | null>(null);
+  const [, setRoadmapLoading] = useState(false);
+  const [explanation, setExplanation] = useState<FileExplanation | null>(null);
+  const [explanationLoading, setExplanationLoading] = useState(false);
+  const [sourceType, setSourceType] = useState<string | undefined>(undefined);
+  const [useDynamicView, setUseDynamicView] = useState(true);
+
+  // Fetch dynamic roadmap for repository
+  useEffect(() => {
+    if (!repo._id || repo._id === 'sample') return;
+    let active = true;
+    setRoadmapLoading(true);
+    api.getLearningRoadmap(repo._id)
+      .then((res) => {
+        if (active && res?.success && res?.roadmap) {
+          setRoadmap(res.roadmap);
+          const firstFile = res.roadmap.stages.find((st) => st.files.length > 0)?.files[0];
+          if (firstFile && !usePathfinderStore.getState().beginnerPath) {
+            store().openFile(firstFile.path);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Dynamic learning roadmap unavailable, falling back:', err);
+      })
+      .finally(() => {
+        if (active) setRoadmapLoading(false);
+      });
+    return () => { active = false; };
+  }, [repo._id]);
+
+  // Fetch file explanation when active path changes
+  useEffect(() => {
+    if (!repo._id || !path || repo._id === 'sample') {
+      setExplanation(null);
+      return;
+    }
+    let active = true;
+    setExplanationLoading(true);
+    api.getFileExplanation(repo._id, path)
+      .then((res) => {
+        if (active && res?.success && res?.explanation) {
+          setExplanation(res.explanation);
+          setSourceType(res.source);
+        }
+      })
+      .catch((err) => {
+        console.warn('File explanation unavailable:', err);
+        if (active) setExplanation(null);
+      })
+      .finally(() => {
+        if (active) setExplanationLoading(false);
+      });
+    return () => { active = false; };
+  }, [repo._id, path]);
+
+  const handleRefreshAi = async () => {
+    if (!repo._id || !path) return;
+    setExplanationLoading(true);
+    try {
+      const res = await api.getFileExplanation(repo._id, path, true);
+      if (res?.success && res?.explanation) {
+        setExplanation(res.explanation);
+        setSourceType(res.source);
+      }
+    } catch (err) {
+      console.error('Failed to enrich file explanation with AI:', err);
+    } finally {
+      setExplanationLoading(false);
+    }
+  };
+
+  const ask = async (q: { id?: string; text: string }) => {
+    const before = chat;
+    store().pushChat('beginner', { role: 'user', text: q.text });
+    const context = step
+      ? `Learning step "${step.roleLabel}": ${step.summary} ${step.what.join(' ')}`
+      : explanation
+      ? `File: ${explanation.filePath}. Purpose: ${explanation.overview.purpose}. Role: ${explanation.architecturalRole.layer}`
+      : '';
+    const answer = await askWithAI(repo._id, q.text, path, before, context, () => answerBeginner(q.id ? { id: q.id } : { text: q.text }, facts, path, steps));
+    store().pushChat('beginner', { role: 'companion', answer });
   };
 
   return (
     <div className="pf-beginner">
-      <section className="pf-queue card" aria-label="Learning queue">
-        <h2 className="pf-h2">Learning Queue <span className="pf-muted pf-h2-sub">({plural(steps.length, 'step')})</span></h2>
-        {steps.length === 0
-          ? <p className="pf-muted pf-small">The analysis did not find enough structure to build a learning path for this repository. Use the search to open any file.</p>
-          : (
-            <ol className="pf-steps">
-              {steps.map((s, i) => {
-                const st = status(s.path);
-                return (
-                  <li key={s.path} className={`pf-step${s.path === path ? ' is-selected' : ''} is-${st.replace(' ', '-').toLowerCase()}`}>
-                    <span className="pf-step-num" aria-hidden="true">{i + 1}</span>
-                    <button type="button" className="pf-step-card" onClick={() => store().openFile(s.path)} aria-current={s.path === path ? 'step' : undefined} aria-label={`Step ${i + 1}: ${s.path}, ${st}`}>
-                      <FileText size={16} className="pf-step-icon" aria-hidden="true" />
-                      <span className="pf-step-text">
-                        <span className="pf-step-name">{facts.name(s.path)}</span>
-                        <span className="pf-step-path">{s.path}</span>
-                        <span className="pf-step-sum">{s.summary}</span>
-                        <StatusBadge status={st} />
-                      </span>
-                      <ArrowRight size={15} className="pf-step-go" aria-hidden="true" />
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-      </section>
+      {/* Left panel: Roadmap / Queue */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {roadmap && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px' }}>
+            <button
+              type="button"
+              className="pf-linkbtn pf-small"
+              onClick={() => setUseDynamicView((v) => !v)}
+              style={{ fontSize: 11, color: '#38BDF8' }}
+            >
+              {useDynamicView ? 'Switch to Classic Queue' : 'Switch to Dynamic Roadmap'}
+            </button>
+          </div>
+        )}
 
-      {path
-        ? <StepPanel facts={facts} steps={steps} path={path} step={step} index={idx} repo={repo} status={status(path)} onExploreContributing={onExploreContributing} />
-        : <section className="pf-detail card pf-empty"><p className="pf-muted">Choose a step from the learning queue to begin.</p></section>}
+        {useDynamicView && roadmap ? (
+          <BeginnerRoadmap
+            roadmap={roadmap}
+            selectedFilePath={path}
+            completedFiles={completed}
+            onSelectFile={(p) => store().openFile(p)}
+            repoId={repo._id}
+          />
+        ) : (
+          <section className="pf-queue card" aria-label="Learning queue">
+            <h2 className="pf-h2">Learning Queue <span className="pf-muted pf-h2-sub">({plural(steps.length, 'step')})</span></h2>
+            {steps.length === 0
+              ? <p className="pf-muted pf-small">The analysis did not find enough structure to build a learning path for this repository. Use the search to open any file.</p>
+              : (
+                <ol className="pf-steps">
+                  {steps.map((s, i) => {
+                    const st = status(s.path);
+                    return (
+                      <li key={s.path} className={`pf-step${s.path === path ? ' is-selected' : ''} is-${st.replace(' ', '-').toLowerCase()}`}>
+                        <span className="pf-step-num" aria-hidden="true">{i + 1}</span>
+                        <button type="button" className="pf-step-card" onClick={() => store().openFile(s.path)} aria-current={s.path === path ? 'step' : undefined} aria-label={`Step ${i + 1}: ${s.path}, ${st}`}>
+                          <FileText size={16} className="pf-step-icon" aria-hidden="true" />
+                          <span className="pf-step-text">
+                            <span className="pf-step-name">{facts.name(s.path)}</span>
+                            <span className="pf-step-path">{s.path}</span>
+                            <span className="pf-step-sum">{s.summary}</span>
+                            <StatusBadge status={st} />
+                          </span>
+                          <ArrowRight size={15} className="pf-step-go" aria-hidden="true" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ol>
+              )}
+          </section>
+        )}
+      </div>
 
+      {/* Center panel: 7-Section Explanation Card or Step Details */}
+      {path ? (
+        useDynamicView && explanation ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: 12, color: '#77839C' }}>
+                Structured Architectural Analysis
+              </span>
+              <button
+                type="button"
+                className="pf-linkbtn pf-small"
+                onClick={() => setUseDynamicView(false)}
+                style={{ fontSize: 11 }}
+              >
+                Show Classic Step View
+              </button>
+            </div>
+            <FileExplanationCard
+              explanation={explanation}
+              repoId={repo._id}
+              sourceType={sourceType}
+              isLoading={explanationLoading}
+              onRefreshAi={handleRefreshAi}
+              onNavigateToFile={(p, line) => store().openFile(p, line ? { line, tab: 'code' } : undefined)}
+            />
+          </div>
+        ) : (
+          <StepPanel facts={facts} steps={steps} path={path} step={step} index={idx} repo={repo} status={status(path)} onExploreContributing={onExploreContributing} />
+        )
+      ) : (
+        <section className="pf-detail card pf-empty"><p className="pf-muted">Choose a step from the learning queue or roadmap to begin.</p></section>
+      )}
+
+      {/* Right panel: Companion chatbot */}
       <Companion
         title="AI Coding Companion"
         intro="Ask about this file, the codebase or how parts connect."

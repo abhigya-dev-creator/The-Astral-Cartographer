@@ -21,7 +21,8 @@ export interface IAnalysis extends Document {
   userId: string;
   status: 'pending' | 'analyzing' | 'completed' | 'failed';
   errorMessage?: string;
-  version?: string;
+  /** user exclusions this analysis was made with (Settings); empty = none */
+  excludePatterns?: string[];
   /** commit SHA (GitHub) or archive content hash (ZIP) that was analysed */
   commitSha?: string;
   branch?: string;
@@ -35,6 +36,8 @@ export interface IAnalysis extends Document {
   languages: LanguageBreakdownEntry[];
   files: IAnalysisFile[];
   issues: IArchitecturalIssue[];
+  codeIssues?: any[];
+  codeIssuesSummary?: any;
   dependencyGraph: IDependencyEdge[];
   createdAt: Date;
 }
@@ -45,7 +48,7 @@ const AnalysisSchema = new Schema<IAnalysis>(
     userId: { type: String, required: true, index: true },
     status: { type: String, enum: ['pending', 'analyzing', 'completed', 'failed'], default: 'pending' },
     errorMessage: { type: String },
-    version: { type: String, default: '1.0' },
+    excludePatterns: { type: [String], default: [] },
     commitSha: { type: String },
     branch: { type: String },
     analyzerVersion: { type: String },
@@ -112,6 +115,25 @@ const AnalysisSchema = new Schema<IAnalysis>(
         rule: { type: String, required: true },
       },
     ],
+    codeIssues: [
+      {
+        _id: false,
+        id: { type: String },
+        ruleId: { type: String, required: true },
+        ruleName: { type: String, required: true },
+        category: { type: String, required: true },
+        severity: { type: String, enum: ['error', 'warning', 'info'], default: 'warning' },
+        confidence: { type: String, enum: ['confirmed', 'heuristic'], default: 'heuristic' },
+        file: { type: String, required: true },
+        line: { type: Number, required: true },
+        column: { type: Number },
+        message: { type: String, required: true },
+        explanation: { type: String, required: true },
+        suggestedFix: { type: String },
+        codeSnippet: { type: String },
+      },
+    ],
+    codeIssuesSummary: { type: Schema.Types.Mixed, default: null },
     dependencyGraph: [
       {
         _id: false,

@@ -1,7 +1,7 @@
 import { builtinModules } from 'node:module';
 
 /** Bump whenever counting definitions or rules change, so stale analyses are re-run instead of reused. */
-export const ANALYZER_VERSION = '2.2.0'; // 2.2.0: Dependency Atlas links Java files; 2.1.0: trailing-slash directory imports resolve; Dependency Atlas generated
+export const ANALYZER_VERSION = '2.3.0'; // 2.3.0: Dependency Atlas links Python and Go files; // 2.2.0: Dependency Atlas links Java files; 2.1.0: trailing-slash directory imports resolve; Dependency Atlas generated
 
 export type SupportLevel = 'full' | 'partial' | 'unsupported' | 'n/a';
 

@@ -15,6 +15,7 @@ import { ComplexityDistributionCard } from '../features/health/ComplexityDistrib
 import { TopRiskAreasCard } from '../features/health/TopRiskAreasCard';
 import { RecommendationsCard } from '../features/health/RecommendationsCard';
 import { FileTypeBreakdownCard } from '../features/health/FileTypeBreakdownCard';
+import { CodeQualityCard } from '../features/health/CodeQualityCard';
 import { FindingsModal } from '../features/health/FindingsModal';
 import { FullReportModal } from '../features/health/FullReportModal';
 import {
@@ -318,6 +319,13 @@ export default function ArchitecturalHealth() {
               setHeaderSearch(lang);
               setIsFindingsModalOpen(true);
             }}
+          />
+
+          {/* Row 4: Code Quality & Bug Inspection (AST & Static Issues) */}
+          <CodeQualityCard
+            codeIssues={analysis?.codeIssues || []}
+            codeIssuesSummary={analysis?.codeIssuesSummary}
+            repoId={selectedRepo._id}
           />
         </main>
       )}

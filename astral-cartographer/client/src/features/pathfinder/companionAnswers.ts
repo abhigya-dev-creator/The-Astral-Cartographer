@@ -15,7 +15,10 @@ export interface Answer {
   bullets?: string[];
   links?: AnswerLink[];
   /** 'analysis' = facts from the analysis; 'limit' = the question needs something that is not available */
-  kind: 'analysis' | 'limit';
+  kind: 'analysis' | 'limit' | 'ai';
+  /** AI answers: the raw text (Markdown) and the files the AI was given */
+  text?: string;
+  usedFiles?: string[];
 }
 export interface ChatMessage { id: number; role: 'user' | 'companion'; text?: string; answer?: Answer }
 export interface Suggestion { id: string; label: string }

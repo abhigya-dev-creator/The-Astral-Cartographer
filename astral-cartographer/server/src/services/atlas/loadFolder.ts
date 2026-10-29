@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ATLAS_LIMITS, IGNORED_DIRS, type SourceFile } from './analyzeAtlas.js';
 import type { SkippedEntry } from './types.js';
+import type { ExcludeMatcher } from '../excludePatterns.js';
 
 /** Known binary formats: only their size is needed, so they are never read. */
 const BINARY_EXT = /\.(?:png|jpe?g|gif|webp|avif|ico|bmp|tiff?|woff2?|ttf|otf|eot|mp3|mp4|m4a|webm|wav|ogg|flac|mov|avi|pdf|zip|gz|tgz|bz2|xz|7z|rar|tar|jar|wasm|exe|dll|so|dylib|class|psd|sqlite|db)$/i;
@@ -15,6 +16,8 @@ function isBinary(buf: Buffer): boolean {
 export interface LoadFolderOptions {
   /** texts already in memory (e.g. kept by CodeAnalyzer); files not in the map are read from disk */
   texts?: ReadonlyMap<string, string> | null;
+  /** user-defined exclusions (Settings): matching files and folders are listed as skipped and never read */
+  exclude?: ExcludeMatcher | null;
 }
 
 /**
@@ -31,6 +34,7 @@ export function loadFolder(root: string, opts: LoadFolderOptions = {}): { files:
     for (const e of entries) {
       const r = rel ? `${rel}/${e.name}` : e.name;
       if (e.isSymbolicLink()) continue;
+      if (opts.exclude?.(r, e.isDirectory())) { skipped.push({ path: r, reason: 'excluded by settings' }); continue; }
       if (e.isDirectory()) {
         if (IGNORED_DIRS.has(e.name)) skipped.push({ path: r, reason: 'ignored directory' });
         else walk(r);

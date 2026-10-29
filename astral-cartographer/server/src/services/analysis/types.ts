@@ -167,6 +167,8 @@ export interface AnalysisResult {
   primaryLanguage: string;
   files: AnalyzedFile[];
   issues: ArchitecturalIssue[];
+  codeIssues?: any[];
+  codeIssuesSummary?: any;
   dependencyGraph: DependencyEdge[];
   analyzerVersion: string;
 }

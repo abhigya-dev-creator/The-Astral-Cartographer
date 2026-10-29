@@ -8,13 +8,18 @@ import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { Repository } from '../models/Repository.js';
 import { Analysis } from '../models/Analysis.js';
 import { RepositoryService, UserFacingError } from '../services/repositoryService.js';
+import { normalizeExcludePatterns } from '../services/excludePatterns.js';
+import { deleteAtlasForRepository } from '../services/atlas/atlasService.js';
+import { PathfinderProgress } from '../models/PathfinderProgress.js';
+import { inspectSourceCode } from '../services/analysis/codeInspection/index.js';
 
 const router = Router();
 
 // ZIP uploads: 50 MB in-memory buffer limit, content verified by magic bytes in the service.
+export const ZIP_UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024, files: 1, fields: 5 },
+  limits: { fileSize: ZIP_UPLOAD_MAX_BYTES, files: 1, fields: 5 },
   fileFilter: (_req, file, cb) => {
     if (file.originalname.toLowerCase().endsWith('.zip') || file.mimetype.includes('zip')) cb(null, true);
     else cb(new UserFacingError('Only .zip archive files are accepted for repository analysis.'));
@@ -38,6 +43,8 @@ function analyzeRateLimit(req: AuthenticatedRequest, res: Response, next: NextFu
   const now = Date.now();
   const key = req.user!.id;
   const recent = (hits.get(key) || []).filter((t) => now - t < WINDOW_MS);
+  // forget users with no recent requests, so the map does not grow forever
+  if (hits.size > 1000) for (const [k, ts] of hits) if (!ts.length || now - ts[ts.length - 1] >= WINDOW_MS) hits.delete(k);
   if (recent.length >= (Number(process.env.ANALYZE_RATE_LIMIT) || 15)) {
     res.setHeader('Retry-After', String(Math.ceil((WINDOW_MS - (now - recent[0])) / 1000)));
     return res.status(429).json({ error: 'Too many analysis requests. Please wait a few minutes and try again.' });
@@ -109,7 +116,7 @@ router.get('/:id', requireAuth, wrap(async (req, res) => {
   const history = await Analysis.find({ repositoryId: repository._id })
     .sort({ createdAt: -1 })
     .limit(10)
-    .select('status errorMessage commitSha branch analyzerVersion createdAt metrics.totalFiles metrics.functions metrics.dependencies metrics.architecturalIssues')
+    .select('status errorMessage commitSha branch analyzerVersion createdAt metrics.totalFiles metrics.totalLines metrics.functions metrics.dependencies metrics.architecturalIssues metrics.coverage.analyzedCodeFiles issues.type issues.severity')
     .lean();
 
   return res.json({ repository, latestAnalysis: map.get(String(repository._id)) || null, analysisHistory: history });
@@ -119,7 +126,8 @@ router.get('/:id', requireAuth, wrap(async (req, res) => {
 router.post('/analyze-github', requireAuth, analyzeRateLimit, wrap(async (req, res) => {
   const url = req.body?.url;
   if (typeof url !== 'string' || !url.trim()) throw new UserFacingError('GitHub repository URL is required.');
-  const result = await RepositoryService.analyzeGitHubRepo(req.user!.id, url.trim(), { force: req.body?.force === true });
+  const exclude = normalizeExcludePatterns(req.body?.exclude);
+  const result = await RepositoryService.analyzeGitHubRepo(req.user!.id, url.trim(), { force: req.body?.force === true, exclude });
   return res.status(200).json({ success: true, repository: result.repository, analysis: result.analysis, reused: result.reused });
 }));
 
@@ -128,8 +136,27 @@ router.post('/analyze-zip', requireAuth, analyzeRateLimit, upload.single('file')
   if (!req.file) throw new UserFacingError('No ZIP file uploaded.');
   const rawName = typeof req.body?.projectName === 'string' ? req.body.projectName : '';
   const projectName = rawName.trim() || req.file.originalname.replace(/\.zip$/i, '');
-  const result = await RepositoryService.analyzeZipUpload(req.user!.id, projectName, req.file.buffer, { force: req.body?.force === 'true' });
+  const exclude = normalizeExcludePatterns(req.body?.exclude);
+  const result = await RepositoryService.analyzeZipUpload(req.user!.id, projectName, req.file.buffer, { force: req.body?.force === 'true', exclude });
   return res.status(200).json({ success: true, repository: result.repository, analysis: result.analysis, reused: result.reused });
+}));
+
+/**
+ * DELETE /api/repositories/:id – remove a repository with all its analyses, stored dependency maps and saved
+ * Pathfinder progress. Refused while an analysis of it is running.
+ */
+router.delete('/:id', requireAuth, wrap(async (req, res) => {
+  if (!validId(req.params.id)) return res.status(400).json({ error: 'Invalid repository id.' });
+  const repository = await Repository.findOne({ _id: req.params.id, userId: req.user!.id }).lean();
+  if (!repository) return res.status(404).json({ error: 'Repository not found or access denied.' });
+  if (repository.analysisStatus === 'analyzing' || repository.analysisStatus === 'pending') {
+    return res.status(409).json({ error: 'This repository is being analysed right now. Delete it when the analysis has finished.' });
+  }
+  await deleteAtlasForRepository(repository._id);
+  const analyses = await Analysis.deleteMany({ repositoryId: repository._id });
+  await PathfinderProgress.deleteMany({ repositoryId: repository._id });
+  await Repository.deleteOne({ _id: repository._id });
+  return res.json({ deleted: true, analyses: analyses.deletedCount });
 }));
 
 /** GET /api/repositories/:id/status – poll progress of a running analysis. */
@@ -181,6 +208,29 @@ router.get('/:id/atlas', requireAuth, wrap(async (req, res) => {
     };
     if (gzipOk) pipeline(source, res, done); else pipeline(source, zlib.createGunzip(), res, done);
   });
+}));
+
+/** POST /api/repositories/inspect-snippet – run intelligent bug detection on raw code */
+router.post('/inspect-snippet', requireAuth, wrap(async (req, res) => {
+  const code = typeof req.body?.code === 'string' ? req.body.code : '';
+  const filePath = typeof req.body?.path === 'string' ? req.body.path : 'snippet.ts';
+  if (!code.trim()) return res.json({ ok: true, result: { file: filePath, issues: [], summary: { total: 0, errors: 0, warnings: 0, info: 0, confirmed: 0, heuristic: 0, byCategory: {} }, durationMs: 0 } });
+  const result = inspectSourceCode(code, filePath);
+  return res.json({ ok: true, result });
+}));
+
+/** POST /api/repositories/:id/inspect-file – run intelligent bug detection on a specific file */
+router.post('/:id/inspect-file', requireAuth, wrap(async (req, res) => {
+  if (!validId(req.params.id)) return res.status(400).json({ error: 'Invalid repository id.' });
+  const repository = await Repository.findOne({ _id: req.params.id, userId: req.user!.id }).lean();
+  if (!repository) return res.status(404).json({ error: 'Repository not found or access denied.' });
+
+  const filePath = typeof req.body?.path === 'string' ? req.body.path : '';
+  const code = typeof req.body?.code === 'string' ? req.body.code : '';
+  if (!filePath) return res.status(400).json({ error: 'File path is required.' });
+
+  const result = inspectSourceCode(code, filePath);
+  return res.json({ ok: true, result });
 }));
 
 export default router;

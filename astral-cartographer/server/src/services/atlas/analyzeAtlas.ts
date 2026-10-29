@@ -3,6 +3,7 @@ import { buildResolveContext, resolveJsImport, type Resolution } from '../analys
 import { stronglyConnected } from '../analysis/architecture.js';
 import { extractFile } from './extract.js';
 import { javaDependencies } from './javaDeps.js';
+import { declaredSymbols, goDependencies, pythonDependencies } from './pyGoDeps.js';
 import type { AtlasData, AtlasRepo, Edge, FileNode, SkippedEntry } from './types.js';
 
 const posix = path.posix;
@@ -23,7 +24,7 @@ export interface AtlasInput {
 }
 
 export const ATLAS_LIMITS = { MAX_FILE_BYTES: 1024 * 1024 };
-export const CODE_EXTS = new Set(['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.java']);
+export const CODE_EXTS = new Set(['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx', '.java', '.py', '.go']);
 export const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'coverage']);
 const MINIFIED = /\.min\.[cm]?js$/i;
 const DECLARATION = /\.d\.[cm]?ts$/i;
@@ -75,7 +76,10 @@ export function analyzeAtlas(input: AtlasInput): AtlasData {
   const skippedByPath = new Map(skipped.map((s) => [s.path, s.reason]));
 
   const ctx = buildResolveContext('', new Set(paths), new Set(), (rel) => included.get(rel)?.text ?? null);
-  const java = javaDependencies(new Map(paths.filter((p) => p.endsWith('.java')).map((p) => [p, included.get(p)!.text ?? ''])));
+  const textsOf = (re: RegExp) => new Map(paths.filter((p) => re.test(p)).map((p) => [p, included.get(p)!.text ?? '']));
+  const java = javaDependencies(textsOf(/\.java$/));
+  const python = pythonDependencies(textsOf(/\.pyi?$/));
+  const go = goDependencies(textsOf(/\.go$/), textsOf(/(^|\/)go\.mod$/));
 
   const files: FileNode[] = [];
   const edges: Edge[] = [];
@@ -91,6 +95,9 @@ export function analyzeAtlas(input: AtlasInput): AtlasData {
     if (j) {
       node.functions = j.classes;
       edges.push(...j.edges);
+    } else if (python.has(p) || go.has(p)) {
+      edges.push(...(python.get(p) ?? go.get(p)!));
+      node.functions = declaredSymbols(p, f.text ?? '');
     } else if (node.kind === 'code') {
       const x = extractFile(f.text ?? '', ext);
       node.functions = x.functions;
@@ -121,6 +128,11 @@ export function analyzeAtlas(input: AtlasInput): AtlasData {
           const base = normalizePath(posix.join(fromDir, specifier));
           for (const c of [base, ...['.d.ts', '.js', '.mjs', '.cjs'].map((e) => base.replace(/\.[cm]?js$/, '') + e)]) {
             const why = skippedByPath.get(c);
+            if (why) return { from, to: null, specifier, line, kind, status: 'unresolved', reason: `target not analysed (${why})` };
+          }
+          // the target sits inside a skipped folder (ignored, or excluded in Settings)
+          for (let d = posix.dirname(base); d && d !== '.'; d = posix.dirname(d)) {
+            const why = skippedByPath.get(d);
             if (why) return { from, to: null, specifier, line, kind, status: 'unresolved', reason: `target not analysed (${why})` };
           }
         }

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import type { ExcludeMatcher } from './excludePatterns.js';
 import {
   ANALYZER_VERSION,
   BINARY_OR_ASSET_EXTS,
@@ -17,6 +18,7 @@ import { emptyFunctionKinds, parseJsTs, type FunctionKinds, type RawImport } fro
 import { analyzeGo, analyzePython, type PyImport } from './analysis/lightAnalyzers.js';
 import { buildResolveContext, resolveJsImport, resolvePythonImport, type ResolveContext } from './analysis/resolver.js';
 import { runArchitecturalRules, type ArchInput } from './analysis/architecture.js';
+import { inspectSourceCode, type CodeIssue } from './analysis/codeInspection/index.js';
 import type {
   AnalysisResult,
   AnalyzedFile,
@@ -64,6 +66,8 @@ export interface AnalyzerOptions {
   onProgress?: (stage: 'discovering' | 'parsing' | 'resolving' | 'rules', detail?: string) => void;
   /** Keep the text of every file read during analysis (used by the Dependency Atlas), capped in total. */
   keepSources?: boolean | { maxBytes?: number };
+  /** user-defined exclusions (Settings); matching files and folders are skipped and counted as "user_excluded" */
+  excludeMatcher?: ExcludeMatcher | null;
 }
 
 /** Default cap for kept texts, counted in UTF-8 bytes read from disk. */
@@ -140,7 +144,7 @@ const levelOf = (i: LanguageInfo): 'full' | 'partial' | 'unsupported' =>
 
 export class CodeAnalyzer {
   private repoDir: string;
-  private opts: Required<Omit<AnalyzerOptions, 'onProgress' | 'keepSources'>> & Pick<AnalyzerOptions, 'onProgress'>;
+  private opts: Required<Omit<AnalyzerOptions, 'onProgress' | 'keepSources' | 'excludeMatcher'>> & Pick<AnalyzerOptions, 'onProgress' | 'excludeMatcher'>;
   /** repo-relative path -> text, when `keepSources` is set; null otherwise */
   public keptSources: Map<string, string> | null = null;
   /** true when the cap was reached; later files were not kept (the Atlas re-reads them from disk) */
@@ -155,6 +159,7 @@ export class CodeAnalyzer {
       maxParseBytes: options.maxParseBytes ?? LIMITS.MAX_PARSE_BYTES,
       timeBudgetMs: options.timeBudgetMs ?? LIMITS.ANALYSIS_TIME_BUDGET_MS,
       onProgress: options.onProgress,
+      excludeMatcher: options.excludeMatcher ?? null,
     };
     if (options.keepSources) {
       this.keptSources = new Map();
@@ -211,6 +216,11 @@ export class CodeAnalyzer {
           continue;
         }
         if (entry.isDirectory()) {
+          if (this.opts.excludeMatcher?.(entryRel, true)) {
+            excluded['user_excluded'] = (excluded['user_excluded'] || 0) + 1;
+            if (excludedDirectories.length < 100) excludedDirectories.push(entryRel);
+            continue;
+          }
           if (IGNORED_DIR_NAMES.has(entry.name) || entry.name.startsWith('.')) {
             if (excludedDirectories.length < 100) excludedDirectories.push(entryRel);
             continue;
@@ -220,6 +230,7 @@ export class CodeAnalyzer {
         }
         if (!entry.isFile()) continue;
 
+        if (this.opts.excludeMatcher?.(entryRel, false)) { exclude('user_excluded', entryRel); continue; }
         const lower = entry.name.toLowerCase();
         const ext = path.extname(lower);
         if (LOCKFILE_NAMES.has(lower)) { exclude('lockfile', entryRel); continue; }
@@ -284,6 +295,7 @@ export class CodeAnalyzer {
     let nonLiteralDynamic = 0;
     let timedOut = false;
     let lastYield = Date.now();
+    const allCodeIssues: CodeIssue[] = [];
 
     for (const c of candidates) {
       if (Date.now() - lastYield > 40) { await tick(); lastYield = Date.now(); }
@@ -357,6 +369,10 @@ export class CodeAnalyzer {
         nonLiteralDynamic += r.nonLiteralDynamic;
         if (r.status !== 'fallback') for (const k of Object.keys(kindTotals) as Array<keyof FunctionKinds>) kindTotals[k] += r.functionKinds[k];
         archInputs.push({ file: base, imports: r.imports.map((i) => ({ specifier: i.specifier, line: i.line })) });
+        if (!base.isDeclaration && code !== null) {
+          const inspected = inspectSourceCode(code, c.rel);
+          if (inspected.issues.length > 0) allCodeIssues.push(...inspected.issues);
+        }
       } else if (c.ext === '.py' || c.ext === '.pyi') {
         const r = analyzePython(code);
         base.parseStatus = 'approximate';
@@ -623,6 +639,7 @@ export class CodeAnalyzer {
       primaryLanguage,
       files,
       issues,
+      codeIssues: allCodeIssues,
       dependencyGraph,
     };
   }

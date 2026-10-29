@@ -24,7 +24,8 @@ import {
   Server,
   Network,
 } from 'lucide-react';
-import { useSettings, type RateLimitInfo } from '../context/settingsStore';
+import { useSettings, excludePatternProblem } from '../context/settingsStore';
+import { api, type GitHubRateLimit, type SystemInfo } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useRepositoryStore } from '../context/repositoryStore';
 import CodeViewer from '../components/CodeViewer';
@@ -48,9 +49,17 @@ export default function Settings() {
   const { repositories } = useRepositoryStore();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('github');
-  const [showToken, setShowToken] = useState(false);
-  const [patInput, setPatInput] = useState(settings.githubToken);
   const [newPatternInput, setNewPatternInput] = useState('');
+  const [patternError, setPatternError] = useState<string | null>(null);
+  const [sysInfo, setSysInfo] = useState<SystemInfo | null>(null);
+  const [sysInfoError, setSysInfoError] = useState<string | null>(null);
+  const [ghStatus, setGhStatus] = useState<GitHubRateLimit | null>(null);
+  const [ghLoading, setGhLoading] = useState(false);
+
+  // real analysis limits and language support from the server
+  useEffect(() => {
+    api.getSystemInfo().then(setSysInfo).catch((err) => setSysInfoError(err?.message || 'Could not load server information.'));
+  }, []);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Modals
@@ -116,7 +125,7 @@ export default function Settings() {
         setSystemHealth({
           backend: 'ok',
           backendLatency: latency,
-          database: data.database?.connected ? (data.database?.mode === 'memory' ? 'memory' : 'connected') : 'disconnected',
+          database: data.database?.connected ? (data.database?.mode === 'in-memory' ? 'memory' : 'connected') : 'disconnected',
           databaseMode: data.database?.mode,
           supabase: isSupabaseConfigured ? 'connected' : 'not-configured',
           lastChecked: Date.now(),
@@ -144,50 +153,27 @@ export default function Settings() {
     checkHealth();
   }, []);
 
-  // Save PAT
-  const handleSavePat = async () => {
-    const trimmed = patInput.trim();
-    settings.setGithubToken(trimmed);
-    triggerToast(trimmed ? 'GitHub token saved successfully.' : 'GitHub token removed.');
-    if (trimmed) {
-      try {
-        await settings.checkGitHubRateLimit();
-        triggerToast('Rate limit updated: 5,000 req/hr enabled.');
-      } catch (err: any) {
-        triggerToast(err?.message || 'Failed to verify token with GitHub', 'error');
-      }
-    } else {
-      settings.setRateLimitStatus(null);
-    }
-  };
-
-  // Remove PAT
-  const handleRemovePat = () => {
-    setPatInput('');
-    settings.setGithubToken('');
-    settings.setRateLimitStatus(null);
-    triggerToast('GitHub token removed. Anonymous rate limit active.');
-  };
-
-  // Rate limit check
-  const handleCheckRateLimit = async () => {
+  // GitHub rate limit of the credentials the server uses for imports (its GITHUB_TOKEN, or anonymous)
+  const checkGitHub = async () => {
+    setGhLoading(true);
     try {
-      const info = await settings.checkGitHubRateLimit();
-      if (info) {
-        triggerToast(`Rate limit: ${info.remaining.toLocaleString()} / ${info.limit.toLocaleString()} remaining.`);
-      }
+      setGhStatus(await api.getGitHubRateLimit());
     } catch (err: any) {
-      triggerToast(err?.message || 'Failed to query GitHub rate limit', 'error');
+      triggerToast(err?.message || 'Could not check the GitHub rate limit', 'error');
+    } finally {
+      setGhLoading(false);
     }
   };
 
-  // Add Ignored Pattern
+  // Add an excluded pattern (validated with the same rules as the server)
   const handleAddPattern = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!newPatternInput.trim()) return;
-    settings.addIgnoredPattern(newPatternInput.trim());
+    const problem = excludePatternProblem(newPatternInput);
+    if (problem) { setPatternError(problem); return; }
+    settings.addExcludedPattern(newPatternInput);
     setNewPatternInput('');
-    triggerToast('Pattern added to exclusion list.');
+    setPatternError(null);
+    triggerToast('Pattern added. It applies to the next analysis you start.');
   };
 
   // Clear Local Cache
@@ -195,7 +181,7 @@ export default function Settings() {
     setConfirmModal({
       isOpen: true,
       title: 'Clear Local Cache?',
-      body: 'This will purge all locally cached repository summaries, analysis snapshots, and atlas graphs from browser storage. Your saved settings and server database records will remain intact.',
+      body: 'This removes view preferences this browser remembers (for example panel sizes). Your settings, your sign-in and everything stored on the server stay as they are.',
       action: () => {
         try {
           const keysToRemove: string[] = [];
@@ -221,10 +207,9 @@ export default function Settings() {
     setConfirmModal({
       isOpen: true,
       title: 'Reset All Settings to Defaults?',
-      body: 'This will reset all code parsing rules, editor preferences, visual atlas toggles, and API token to their default factory values.',
+      body: 'This removes your excluded patterns and resets the editor preferences to their defaults. Your repositories and analyses on the server are not affected.',
       action: () => {
         settings.resetToDefaults();
-        setPatInput('');
         triggerToast('All settings restored to defaults.');
         setConfirmModal(null);
       },
@@ -357,83 +342,27 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                 <div className="settings-card-title-group">
                   <h2 className="settings-card-title">
                     <Key size={18} color="#6898FF" />
-                    <span>GitHub Personal Access Token (PAT)</span>
+                    <span>GitHub access</span>
                   </h2>
                   <p className="settings-card-subtitle">
-                    Configure a GitHub token to raise API limits from 60 to 5,000 requests per hour for large repositories.
+                    Repositories are downloaded by the analysis server. Without a token GitHub allows 60 API requests per hour; with one, 5,000.
                   </p>
                 </div>
-
-                <a
-                  href="https://github.com/settings/tokens/new?scopes=public_repo&description=The%20Astral%20Cartographer"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="settings-btn settings-btn-secondary"
-                  style={{ fontSize: 11.5 }}
-                >
-                  <ExternalLink size={13} />
-                  <span>Generate on GitHub</span>
-                </a>
               </div>
 
-              {/* Token Input Field */}
               <div className="settings-row-col">
                 <div className="settings-label-group">
-                  <label htmlFor="github-token" className="settings-label">
-                    Personal Access Token
-                  </label>
+                  <label className="settings-label">Server token</label>
                   <span className="settings-description">
-                    Tokens are saved strictly in your browser's private local storage and are sent only to GitHub's official endpoints.
+                    {sysInfo
+                      ? sysInfo.githubTokenConfigured
+                        ? 'The server has a GITHUB_TOKEN configured, so imports use the higher rate limit.'
+                        : 'No token is configured. To raise the limit, add GITHUB_TOKEN (a GitHub personal access token, no scopes needed) to server/.env and restart the server. Tokens are never stored in the browser.'
+                      : sysInfoError ?? 'Checking the server…'}
                   </span>
-                </div>
-
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <div className="settings-input-wrap">
-                    <input
-                      id="github-token"
-                      type={showToken ? 'text' : 'password'}
-                      className="settings-input mono"
-                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                      value={patInput}
-                      onChange={(e) => setPatInput(e.target.value)}
-                      autoComplete="off"
-                      spellCheck="false"
-                    />
-                    <button
-                      type="button"
-                      className="settings-input-btn-right"
-                      onClick={() => setShowToken(!showToken)}
-                      title={showToken ? 'Hide token' : 'Show token'}
-                      aria-label={showToken ? 'Hide token' : 'Show token'}
-                    >
-                      {showToken ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="settings-btn settings-btn-primary"
-                    onClick={handleSavePat}
-                  >
-                    <Check size={14} />
-                    <span>Save Token</span>
-                  </button>
-
-                  {settings.githubToken && (
-                    <button
-                      type="button"
-                      className="settings-btn settings-btn-danger"
-                      onClick={handleRemovePat}
-                      title="Remove token from local storage"
-                    >
-                      <Trash2 size={14} />
-                      <span>Remove</span>
-                    </button>
-                  )}
                 </div>
               </div>
 
-              {/* Rate Limit Status Card */}
               <div className="settings-stat-badge-box">
                 <div className="settings-stat-left">
                   <div className="settings-stat-icon-wrap">
@@ -441,41 +370,18 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                   </div>
                   <div className="settings-stat-details">
                     <div className="settings-stat-number">
-                      {settings.rateLimitStatus
-                        ? `${settings.rateLimitStatus.remaining.toLocaleString()} / ${settings.rateLimitStatus.limit.toLocaleString()}`
-                        : settings.githubToken
-                        ? 'Token Saved (Not Checked)'
-                        : '60 / 60 (Anonymous)'}
+                      {ghStatus ? `${ghStatus.remaining.toLocaleString()} / ${ghStatus.limit.toLocaleString()}` : 'Not checked yet'}
                     </div>
                     <div className="settings-stat-label">
-                      {settings.rateLimitStatus ? (
-                        <>
-                          Resets at{' '}
-                          {new Date(settings.rateLimitStatus.reset * 1000).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}{' '}
-                          ({Math.max(0, Math.round((settings.rateLimitStatus.reset * 1000 - Date.now()) / 60000))} min remaining)
-                        </>
-                      ) : (
-                        'Click Check Rate Limit to ping GitHub endpoint'
-                      )}
+                      {ghStatus
+                        ? `Requests left for the server (${ghStatus.authenticated ? 'with token' : 'anonymous'}); resets at ${new Date(ghStatus.resetAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                        : 'Asks GitHub how many requests the server has left'}
                     </div>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  className="settings-btn settings-btn-secondary"
-                  onClick={handleCheckRateLimit}
-                  disabled={settings.isCheckingRateLimit}
-                >
-                  <RefreshCw
-                    size={14}
-                    className={settings.isCheckingRateLimit ? 'spin' : ''}
-                    style={{ animation: settings.isCheckingRateLimit ? 'spin 1s linear infinite' : 'none' }}
-                  />
-                  <span>{settings.isCheckingRateLimit ? 'Pinging GitHub...' : 'Check Rate Limit'}</span>
+                <button type="button" className="settings-btn settings-btn-secondary" onClick={checkGitHub} disabled={ghLoading}>
+                  <RefreshCw size={14} className={ghLoading ? 'spin' : ''} />
+                  <span>{ghLoading ? 'Checking…' : 'Check rate limit'}</span>
                 </button>
               </div>
             </div>
@@ -488,160 +394,70 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                 <div className="settings-card-title-group">
                   <h2 className="settings-card-title">
                     <Sliders size={18} color="#FFD166" />
-                    <span>Codebase Analyzer & Parsing Rules</span>
+                    <span>Codebase analyzer</span>
                   </h2>
                   <p className="settings-card-subtitle">
-                    Control which directories are excluded from AST generation, file size caps, and recursion depth limits.
+                    Files and folders to leave out of your analyses, and the rules the server applies.
                   </p>
                 </div>
               </div>
 
-              {/* Excluded Patterns Tag List */}
               <div className="settings-row-col">
                 <div className="settings-label-group">
-                  <label className="settings-label">Excluded Folders & Patterns</label>
+                  <label className="settings-label">Excluded files and folders</label>
                   <span className="settings-description">
-                    Matching paths are skipped during directory traversal and deep AST indexing to conserve memory.
+                    Sent with every analysis you start from this browser (import or Re-analyze). A name like <code>docs</code> or <code>*.test.ts</code> matches anywhere; a path like <code>src/legacy</code> or <code>examples/**</code> matches from the repository root.
                   </span>
                 </div>
 
                 <div className="settings-tag-list">
-                  {settings.ignoredPatterns.map((pat) => (
+                  {settings.excludedPatterns.length === 0 && <span className="settings-description">Nothing excluded.</span>}
+                  {settings.excludedPatterns.map((pat) => (
                     <span key={pat} className="settings-tag-pill">
                       <span>{pat}</span>
-                      <button
-                        type="button"
-                        className="settings-tag-remove-btn"
-                        onClick={() => settings.removeIgnoredPattern(pat)}
-                        title={`Remove ${pat}`}
-                        aria-label={`Remove pattern ${pat}`}
-                      >
+                      <button type="button" className="settings-tag-remove-btn" onClick={() => settings.removeExcludedPattern(pat)} title={`Remove ${pat}`} aria-label={`Remove pattern ${pat}`}>
                         <X size={13} />
                       </button>
                     </span>
                   ))}
                 </div>
 
-                {/* Add new pattern input */}
-                <form onSubmit={handleAddPattern} style={{ display: 'flex', gap: 10, maxWidth: 360 }}>
-                  <input
-                    type="text"
-                    className="settings-input mono"
-                    placeholder="e.g. *.min.js, vendor, temp"
-                    value={newPatternInput}
-                    onChange={(e) => setNewPatternInput(e.target.value)}
-                  />
+                <form onSubmit={handleAddPattern} style={{ display: 'flex', gap: 10, maxWidth: 420 }}>
+                  <input type="text" className="settings-input mono" placeholder="e.g. docs, *.test.ts, src/legacy" value={newPatternInput} onChange={(e) => { setNewPatternInput(e.target.value); setPatternError(null); }} aria-label="New excluded pattern" />
                   <button type="submit" className="settings-btn settings-btn-secondary">
                     <Plus size={14} />
                     <span>Add</span>
                   </button>
                 </form>
+                {patternError && <span className="settings-description" style={{ color: '#FF717A' }} role="alert">{patternError}</span>}
               </div>
 
-              {/* Max File Size Threshold */}
-              <div className="settings-row border-bottom">
-                <div className="settings-label-group">
-                  <label htmlFor="max-file-size" className="settings-label">Max File Size Threshold</label>
-                  <span className="settings-description">
-                    Files exceeding this limit are treated as binary or bundled assets and skipped during function-level AST parsing.
-                  </span>
-                </div>
-
-                <div className="settings-range-wrap">
-                  <input
-                    id="max-file-size"
-                    type="range"
-                    min="50"
-                    max="2048"
-                    step="50"
-                    className="settings-range"
-                    value={settings.maxFileSizeKB}
-                    onChange={(e) => settings.setMaxFileSizeKB(Number(e.target.value))}
-                    aria-label="Max File Size Threshold"
-                  />
-                  <span className="settings-range-val">
-                    {settings.maxFileSizeKB >= 1024
-                      ? `${(settings.maxFileSizeKB / 1024).toFixed(1)} MB`
-                      : `${settings.maxFileSizeKB} KB`}
-                  </span>
-                </div>
-              </div>
-
-              {/* AST Depth Limit */}
-              <div className="settings-row border-bottom">
-                <div className="settings-label-group">
-                  <label htmlFor="ast-depth-limit" className="settings-label">Call-Graph & Dependency Depth Limit</label>
-                  <span className="settings-description">
-                    Maximum recursive hierarchy depth indexed for circular dependency detection and import chains.
-                  </span>
-                </div>
-
-                <div className="settings-range-wrap">
-                  <input
-                    id="ast-depth-limit"
-                    type="range"
-                    min="1"
-                    max="15"
-                    step="1"
-                    className="settings-range"
-                    value={settings.astDepthLimit}
-                    onChange={(e) => settings.setAstDepthLimit(Number(e.target.value))}
-                    aria-label="AST Call-Graph Depth Limit"
-                  />
-                  <span className="settings-range-val">{settings.astDepthLimit} levels</span>
-                </div>
-              </div>
-
-              {/* Supported Language Targets */}
               <div className="settings-row-col">
                 <div className="settings-label-group">
-                  <label className="settings-label">Supported Parser Targets</label>
+                  <label className="settings-label">Always skipped by the server</label>
                   <span className="settings-description">
-                    Toggle enabled Tree-sitter / Babel language grammars for AST dependency extraction.
+                    {sysInfo ? sysInfo.alwaysSkippedFolders.join(', ') : sysInfoError ?? 'Loading…'}
                   </span>
                 </div>
+              </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-                  <div className="settings-stat-badge-box">
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>JavaScript / TypeScript</span>
-                    <label className="settings-toggle">
-                      <input
-                        type="checkbox"
-                        checked={settings.supportedLanguages.javascript && settings.supportedLanguages.typescript}
-                        onChange={(e) => {
-                          settings.setSupportedLanguage('javascript', e.target.checked);
-                          settings.setSupportedLanguage('typescript', e.target.checked);
-                        }}
-                      />
-                      <span className="settings-toggle-track" />
-                    </label>
+              {sysInfo && (
+                <div className="settings-row-col">
+                  <div className="settings-label-group">
+                    <label className="settings-label">Limits and languages</label>
+                    <span className="settings-description">
+                      Up to {sysInfo.limits.maxFiles.toLocaleString()} files per analysis, within {Math.round(sysInfo.limits.analysisTimeBudgetMs / 1000)} seconds. Files over {(sysInfo.limits.maxParseBytes / 1e6).toFixed(1)} MB are not parsed. GitHub archives up to {Math.round(sysInfo.limits.maxGithubArchiveBytes / 1048576)} MB, ZIP uploads up to {Math.round(sysInfo.limits.maxZipUploadBytes / 1048576)} MB. Analyzer version {sysInfo.analyzerVersion}.
+                    </span>
                   </div>
-
-                  <div className="settings-stat-badge-box">
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>Java</span>
-                    <label className="settings-toggle">
-                      <input
-                        type="checkbox"
-                        checked={settings.supportedLanguages.java}
-                        onChange={(e) => settings.setSupportedLanguage('java', e.target.checked)}
-                      />
-                      <span className="settings-toggle-track" />
-                    </label>
-                  </div>
-
-                  <div className="settings-stat-badge-box">
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#F3F6FF' }}>Python</span>
-                    <label className="settings-toggle">
-                      <input
-                        type="checkbox"
-                        checked={settings.supportedLanguages.python}
-                        onChange={(e) => settings.setSupportedLanguage('python', e.target.checked)}
-                      />
-                      <span className="settings-toggle-track" />
-                    </label>
+                  <div className="settings-tag-list">
+                    {sysInfo.languages.map((l) => (
+                      <span key={l.name} className="settings-tag-pill" title={`Functions: ${l.functions} · imports: ${l.dependencies}`}>
+                        <span>{l.name}: {l.dependencies === 'full' ? 'full' : l.dependencies === 'none' && l.functions === 'none' ? 'counted only' : 'partial'}</span>
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -655,7 +471,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     <span>Visualizer & Code Explorer Preferences</span>
                   </h2>
                   <p className="settings-card-subtitle">
-                    Customize typography, line wrapping, and animation performance across the Code Explorer and Dependency Atlas.
+                    Typography and line display for every code view (Code Explorer, Dependency Atlas, Onboarding Pathfinder).
                   </p>
                 </div>
               </div>
@@ -739,52 +555,6 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     type="checkbox"
                     checked={settings.editorLineNumbers}
                     onChange={(e) => settings.setEditorLineNumbers(e.target.checked)}
-                  />
-                  <span className="settings-toggle-track" />
-                </label>
-              </div>
-
-              {/* Dependency Atlas View Mode */}
-              <div className="settings-row border-bottom">
-                <div className="settings-label-group">
-                  <label className="settings-label">Atlas Default View Mode</label>
-                  <span className="settings-description">
-                    Preferred initial projection when launching the Dependency Atlas.
-                  </span>
-                </div>
-
-                <div className="settings-segmented-group">
-                  <button
-                    type="button"
-                    className={`settings-segmented-btn ${settings.atlasViewMode === '2d' ? 'active' : ''}`}
-                    onClick={() => settings.setAtlasViewMode('2d')}
-                  >
-                    2D Hierarchical
-                  </button>
-                  <button
-                    type="button"
-                    className={`settings-segmented-btn ${settings.atlasViewMode === '3d' ? 'active' : ''}`}
-                    onClick={() => settings.setAtlasViewMode('3d')}
-                  >
-                    3D Force-Directed
-                  </button>
-                </div>
-              </div>
-
-              {/* Physics & Particle Animation */}
-              <div className="settings-row border-bottom">
-                <div className="settings-label-group">
-                  <label className="settings-label">Physics & Fluid Animations</label>
-                  <span className="settings-description">
-                    Simulate orbital node forces and particle glows. Disable on battery or low-spec devices for faster rendering.
-                  </span>
-                </div>
-
-                <label className="settings-toggle">
-                  <input
-                    type="checkbox"
-                    checked={settings.atlasPhysicsEnabled}
-                    onChange={(e) => settings.setAtlasPhysicsEnabled(e.target.checked)}
                   />
                   <span className="settings-toggle-track" />
                 </label>
@@ -939,7 +709,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     <span>Cache & Data Storage</span>
                   </h2>
                   <p className="settings-card-subtitle">
-                    Manage client-side cached graphs, repository metadata, and local analysis snapshots.
+                    What this browser stores for The Astral Cartographer.
                   </p>
                 </div>
               </div>
@@ -957,7 +727,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                 </div>
 
                 <div style={{ textAlign: 'right', fontSize: 12, color: '#A7B4CC' }}>
-                  <div>{repositories.length} Cached Repositories</div>
+                  <div>{repositories.length} repositories in your account</div>
                 </div>
               </div>
 
@@ -966,7 +736,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                 <div className="settings-label-group">
                   <label className="settings-label">Flush Client-Side Cache</label>
                   <span className="settings-description">
-                    Removes local cached graph projections and repository snapshots. Backend databases and analysis histories remain untouched.
+                    Removes view preferences this browser remembers (such as panel sizes). Server data is not affected.
                   </span>
                 </div>
 
@@ -985,7 +755,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                 <div className="settings-label-group">
                   <label className="settings-label">Factory Reset Preferences</label>
                   <span className="settings-description">
-                    Restore all settings, ignored file patterns, editor typography, and token configurations to default values.
+                    Remove your excluded patterns and restore the default editor preferences.
                   </span>
                 </div>
 
@@ -1045,7 +815,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     </span>
                   </div>
                   <div className="settings-health-desc">
-                    Node.js & Express service running on port 5000.
+                    Node.js & Express analysis service.
                     {systemHealth.backendLatency ? ` Latency: ${systemHealth.backendLatency}ms` : ''}
                   </div>
                 </div>
@@ -1069,7 +839,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     </span>
                   </div>
                   <div className="settings-health-desc">
-                    {systemHealth.databaseMode === 'memory'
+                    {systemHealth.databaseMode === 'in-memory'
                       ? 'In-memory MongoDB instance active for rapid development.'
                       : 'Persistent MongoDB cluster active for repository records.'}
                   </div>
@@ -1090,7 +860,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                   <div className="settings-health-desc">
                     {systemHealth.supabase === 'connected'
                       ? 'OAuth, secure session cookies, and JWT verification enabled.'
-                      : 'Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable.'}
+                      : 'Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in client/.env to enable.'}
                   </div>
                 </div>
               </div>
@@ -1115,7 +885,7 @@ export function calculateMetrics(nodes: RepositoryNode[]): number {
                     The Astral Cartographer
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--color-text-supporting)', marginTop: 2 }}>
-                    v1.0.0 · AST Architectural Map Engine · Built with React, TypeScript & Tree-sitter
+                    {sysInfo ? `Analyzer ${sysInfo.analyzerVersion} · ` : ''}Built with React, TypeScript, Express, MongoDB and the Babel parser
                   </div>
                 </div>
 

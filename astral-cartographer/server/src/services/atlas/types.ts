@@ -49,7 +49,7 @@ export interface Edge {
 
 export interface SkippedEntry {
   path: string;
-  reason: 'ignored directory' | 'minified' | 'type declaration' | 'too large';
+  reason: 'ignored directory' | 'minified' | 'type declaration' | 'too large' | 'excluded by settings';
 }
 
 export interface AtlasRepo {
