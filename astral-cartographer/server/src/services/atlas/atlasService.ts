@@ -3,8 +3,10 @@ import { Analysis } from '../../models/Analysis.js';
 import { analyzeAtlas } from './analyzeAtlas.js';
 import { atlasStore } from './gridfsStore.js';
 import { loadFolder } from './loadFolder.js';
+import { mapFindings } from './mapFindings.js';
 import type { AtlasMeta } from './store.js';
 import type { AtlasRepo } from './types.js';
+import type { ExcludeMatcher } from '../excludePatterns.js';
 
 export interface BuildAtlasParams {
   /** extracted repository folder (still on disk during the analysis) */
@@ -15,15 +17,18 @@ export interface BuildAtlasParams {
   kept: ReadonlyMap<string, string> | null;
   /** CodeAnalyzer hit its memory cap, so some texts are read from disk again */
   capped: boolean;
+  /** the same user exclusions the analyzer applied */
+  exclude?: ExcludeMatcher | null;
 }
 
 /** Build the AtlasData for one analysis and store it in GridFS under the analysis id. */
-export async function buildAndStoreAtlas(p: BuildAtlasParams): Promise<AtlasMeta> {
+export async function buildAndStoreAtlas(p: BuildAtlasParams): Promise<AtlasMeta & { findings: any[] }> {
   const t0 = performance.now();
-  const { files, skipped, diskReads } = loadFolder(p.root, { texts: p.kept });
+  const { files, skipped, diskReads } = loadFolder(p.root, { texts: p.kept, exclude: p.exclude });
   const data = analyzeAtlas({ repo: p.repo, files, skipped });
   const meta = await atlasStore.save(p.analysisId, data);
   return {
+    findings: mapFindings(data),
     ...meta,
     sourcesFrom: !p.kept ? 'disk' : p.capped ? 'memory+disk' : 'memory',
     diskReads,

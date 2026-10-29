@@ -3,7 +3,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, FolderTree, AlertCircle, RefreshCw } from 'lucide-react';
 import '../features/explorer/explorer.css';
 import { useRepositoryStore } from '../context/repositoryStore';
-import { api, type RepositorySummary, type IArchitecturalIssue } from '../lib/api';
+import { api, type RepositorySummary, type IArchitecturalIssue, type CodeIssue } from '../lib/api';
 import { fetchAtlas } from '../features/atlas/atlasApi';
 import { parseAtlasData, type AtlasData, type FileNode } from '../features/atlas/model';
 import { fetchFileSource } from '../lib/fetchFileSource';
@@ -43,6 +43,12 @@ export default function CodeExplorer() {
   const [sourceCode, setSourceCode] = useState<string | null>(null);
   const [isLoadingSource, setIsLoadingSource] = useState(false);
   const [sourceError, setSourceError] = useState<string | null>(null);
+
+  // Code inspection issues & problems drawer state
+  const [fileIssues, setFileIssues] = useState<CodeIssue[]>([]);
+  const [isLoadingInspection, setIsLoadingInspection] = useState(false);
+  const [isAiInspecting, setIsAiInspecting] = useState(false);
+  const [isProblemsOpen, setIsProblemsOpen] = useState(false);
 
   // Target line scrolling
   const [targetLine, setTargetLine] = useState<number | null>(null);
@@ -338,6 +344,115 @@ export default function CodeExplorer() {
     };
   }, [activeTab?.path, selectedRepo]);
 
+  // Inspect source code for bugs, dead code, and security vulnerabilities
+  useEffect(() => {
+    if (!sourceCode || !activeTab) {
+      setFileIssues([]);
+      setIsLoadingInspection(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingInspection(true);
+
+    api
+      .inspectSnippet(sourceCode, activeTab.path)
+      .then((res) => {
+        if (cancelled) return;
+        setFileIssues(res.issues || []);
+        setIsLoadingInspection(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('Failed to run code inspection on snippet:', err);
+        setFileIssues([]);
+        setIsLoadingInspection(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sourceCode, activeTab?.path]);
+
+  // Run AI deep logic inspection
+  const handleRunAiInspection = useCallback(async () => {
+    if (!selectedRepo || !activeTab || !sourceCode || isAiInspecting) return;
+    setIsAiInspecting(true);
+
+    try {
+      const prompt = `Perform an intelligent code quality and bug audit on the file: "${activeTab.path}".
+Source code snippet:
+\`\`\`${activeTab.ext || 'ts'}
+${sourceCode.slice(0, 4000)}
+\`\`\`
+Identify any subtle logical errors, edge case bugs, memory/resource leaks, or security vulnerabilities.
+Respond strictly in JSON format:
+{
+  "issues": [
+    {
+      "message": "Concise issue description",
+      "explanation": "Detailed explanation of the potential risk or bug",
+      "line": 1,
+      "severity": "warning",
+      "suggestedFix": "Code fix or advice"
+    }
+  ]
+}`;
+
+      const res = await api.askAssistant(selectedRepo._id, {
+        question: prompt,
+        path: activeTab.path,
+        context: sourceCode.slice(0, 3000),
+      });
+      const jsonMatch = res.answer.match(/\{[\s\S]*"issues"[\s\S]*\}/);
+
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (Array.isArray(parsed.issues) && parsed.issues.length > 0) {
+          const aiIssues: CodeIssue[] = parsed.issues.map((iss: any, idx: number) => ({
+            id: `ai-${Date.now()}-${idx}`,
+            ruleId: 'ai-code-auditor',
+            ruleName: 'AI Logic Inspection',
+            category: 'ai_detected' as const,
+            severity: iss.severity === 'error' ? ('error' as const) : ('warning' as const),
+            confidence: 'heuristic' as const,
+            file: activeTab.path,
+            line: typeof iss.line === 'number' && iss.line > 0 ? iss.line : 1,
+            message: iss.message || 'Potential issue detected by AI auditor',
+            explanation: iss.explanation || res.answer,
+            suggestedFix: iss.suggestedFix,
+          }));
+          setFileIssues((prev) => [...prev, ...aiIssues]);
+          setIsProblemsOpen(true);
+        }
+      } else {
+        const aiIssue: CodeIssue = {
+          id: `ai-${Date.now()}-0`,
+          ruleId: 'ai-code-auditor',
+          ruleName: 'AI Logic Inspection',
+          category: 'ai_detected' as const,
+          severity: 'info' as const,
+          confidence: 'heuristic' as const,
+          file: activeTab.path,
+          line: 1,
+          message: 'AI Code Analysis completed',
+          explanation: res.answer,
+        };
+        setFileIssues((prev) => [...prev, aiIssue]);
+        setIsProblemsOpen(true);
+      }
+    } catch (err) {
+      console.error('Failed to run AI inspection:', err);
+    } finally {
+      setIsAiInspecting(false);
+    }
+  }, [selectedRepo, activeTab, sourceCode, isAiInspecting]);
+
+  const handleSelectIssue = useCallback((issue: CodeIssue) => {
+    setTargetLine(issue.line);
+    setTargetNonce((n) => n + 1);
+  }, []);
+
   // Handlers for File Selection & Tabs
   const handleOpenFile = useCallback(
     (filePath: string, line?: number) => {
@@ -557,6 +672,13 @@ export default function CodeExplorer() {
             onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
             targetLine={targetLine}
             targetNonce={targetNonce}
+            issues={fileIssues}
+            isLoadingIssues={isLoadingInspection}
+            isAiInspecting={isAiInspecting}
+            isProblemsOpen={isProblemsOpen}
+            onToggleProblems={() => setIsProblemsOpen(!isProblemsOpen)}
+            onSelectIssue={handleSelectIssue}
+            onRunAiInspection={handleRunAiInspection}
           />
 
           {/* Column 3: Right Panel - Contextual AI Summary & Metrics */}
@@ -565,6 +687,11 @@ export default function CodeExplorer() {
               currentFile={currentFile}
               sourceCode={sourceCode}
               onNavigateToFile={handleOpenFile}
+              issues={fileIssues}
+              onSelectLine={(line) => {
+                setTargetLine(line);
+                setTargetNonce((n) => n + 1);
+              }}
             />
           )}
         </div>

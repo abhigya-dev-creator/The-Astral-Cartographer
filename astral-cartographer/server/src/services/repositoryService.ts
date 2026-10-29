@@ -8,6 +8,7 @@ import { Repository, IRepository } from '../models/Repository.js';
 import { Analysis, IAnalysis } from '../models/Analysis.js';
 import { CodeAnalyzer, ANALYZER_VERSION } from './analyzer.js';
 import { buildAndStoreAtlas, deleteAtlasForAnalyses } from './atlas/atlasService.js';
+import { compileExcludes } from './excludePatterns.js';
 import type { AtlasMeta } from './atlas/store.js';
 import type { AnalysisResult } from './analysis/types.js';
 import { downloadArchive, fetchRepoMeta, parseGitHubUrl, resolveCommitSha } from './github.js';
@@ -50,6 +51,8 @@ interface SourceInfo {
 export interface AnalyzeOptions {
   /** re-run even if this exact commit was already analysed with the current analyzer version */
   force?: boolean;
+  /** user exclusions (already normalised with normalizeExcludePatterns) */
+  exclude?: string[];
 }
 
 export interface AnalyzeOutcome {
@@ -108,6 +111,7 @@ export class RepositoryService {
       userId,
       key: meta.fullName.toLowerCase(),
       force: !!options.force,
+      exclude: options.exclude ?? [],
       repoFields: {
         name: meta.repo,
         owner: meta.owner,
@@ -143,6 +147,7 @@ export class RepositoryService {
       userId,
       key: `zip:${name.toLowerCase()}`,
       force: !!options.force,
+      exclude: options.exclude ?? [],
       repoFields: {
         name,
         owner: 'Local Upload',
@@ -178,6 +183,7 @@ export class RepositoryService {
     userId: string;
     key: string;
     force: boolean;
+    exclude: string[];
     repoFields: Partial<IRepository>;
     knownCommit: string | null;
     branch: string;
@@ -196,13 +202,17 @@ export class RepositoryService {
     try {
       repo = await this.upsertRepository(params.userId, params.repoFields);
 
-      // Reuse: same commit + same analyzer version => identical result, skip the work.
+      // Reuse: same commit + same analyzer version + same exclusions => identical result, skip the work.
+      const sameExclusions = params.exclude.length
+        ? { excludePatterns: params.exclude }
+        : { $or: [{ excludePatterns: { $exists: false } }, { excludePatterns: { $size: 0 } }] };
       if (params.knownCommit && !params.force) {
         const existing = await Analysis.findOne({
           repositoryId: repo._id,
           status: 'completed',
           commitSha: params.knownCommit,
           analyzerVersion: ANALYZER_VERSION,
+          ...sameExclusions,
         }).sort({ createdAt: -1 });
         if (existing) {
           const updated = await Repository.findByIdAndUpdate(
@@ -215,7 +225,7 @@ export class RepositoryService {
       }
 
       await Repository.updateOne({ _id: repo._id }, { analysisStatus: 'analyzing', analysisStage: 'downloading', statusMessage: 'Starting analysis...' });
-      analysisDoc = await Analysis.create({ repositoryId: repo._id, userId: params.userId, status: 'analyzing', commitSha: params.knownCommit || undefined, branch: params.branch, analyzerVersion: ANALYZER_VERSION, version: '1.0' });
+      analysisDoc = await Analysis.create({ repositoryId: repo._id, userId: params.userId, status: 'analyzing', commitSha: params.knownCommit || undefined, branch: params.branch, analyzerVersion: ANALYZER_VERSION, excludePatterns: params.exclude });
 
       workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'astral-'));
       const source = await params.acquire(workDir, (s) => setStage(repo!._id, s));
@@ -223,7 +233,7 @@ export class RepositoryService {
       // The API may have been unavailable (rate limit), so the commit is only known now (from the archive itself).
       // Re-check for an identical, already-completed analysis before spending CPU on a new one.
       if (!params.knownCommit && !params.force) {
-        const existing = await Analysis.findOne({ repositoryId: repo._id, status: 'completed', commitSha: source.commitSha, analyzerVersion: ANALYZER_VERSION }).sort({ createdAt: -1 });
+        const existing = await Analysis.findOne({ repositoryId: repo._id, status: 'completed', commitSha: source.commitSha, analyzerVersion: ANALYZER_VERSION, ...sameExclusions }).sort({ createdAt: -1 });
         if (existing) {
           await Analysis.deleteOne({ _id: analysisDoc._id });
           const updated = await Repository.findByIdAndUpdate(
@@ -236,7 +246,8 @@ export class RepositoryService {
       }
 
       await setStage(repo._id, 'analyzing');
-      const analyzer = new CodeAnalyzer(source.root, { keepSources: true });
+      const excludeMatcher = compileExcludes(params.exclude);
+      const analyzer = new CodeAnalyzer(source.root, { keepSources: true, excludeMatcher });
       const result: AnalysisResult = await analyzer.analyze();
       result.metrics.coverage.archive = source.archive;
 
@@ -245,13 +256,17 @@ export class RepositoryService {
       // Dependency Atlas from the same files. Must never break the analysis: any failure becomes a warning.
       let atlas: AtlasMeta | null = null;
       try {
-        atlas = await buildAndStoreAtlas({
+        const built = await buildAndStoreAtlas({
           root: source.root,
           analysisId: String(analysisDoc._id),
           repo: { owner: repo.owner, name: repo.name, branch: source.branch ?? '', commitSha: source.commitSha ?? '', source: repo.source },
           kept: analyzer.keptSources,
           capped: analyzer.keptSourcesCapped,
+          exclude: excludeMatcher,
         });
+        const { findings, ...meta } = built;
+        atlas = meta;
+        if (findings.length) { result.issues.push(...findings); result.metrics.architecturalIssues = result.issues.length; }
       } catch (err: any) {
         console.warn(`[Atlas] map generation failed for analysis ${String(analysisDoc._id)}: ${err?.message || err}`);
         warnings.push('The dependency map could not be generated for this analysis. Re-analyze to try again.');
@@ -260,14 +275,15 @@ export class RepositoryService {
       }
       const payload = {
         status: 'completed' as const,
-        version: '1.0',
         commitSha: source.commitSha,
+        excludePatterns: params.exclude,
         branch: source.branch,
         analyzerVersion: result.analyzerVersion,
         metrics: result.metrics,
         languages: result.languages,
         files: result.files,
         issues: result.issues,
+        codeIssues: (result as any).codeIssues || [],
         dependencyGraph: result.dependencyGraph,
         warnings,
         truncated: false,

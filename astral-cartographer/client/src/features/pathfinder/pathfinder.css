@@ -280,3 +280,5 @@
 @media (prefers-reduced-motion: reduce) {
   .pf-bar span, .pf-mode { transition: none; }
 }
+
+.pf-ai-code { margin: 4px 0 8px; padding: 8px 10px; border-radius: 8px; background: rgba(3, 7, 18, 0.85); border: 1px solid rgba(135, 155, 255, 0.18); font: 11.5px/1.5 var(--font-mono); color: #EAF0FF; overflow-x: auto; white-space: pre; }

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { languageOf, tokenize, type TokenClass } from '../lib/highlight';
 import { useSettings } from '../context/settingsStore';
 
+import type { CodeIssue } from '../lib/api';
+
 /** Read-only, virtualised code view with line numbers and JS/TS/JSX syntax colours. Shared component. */
 const COLORS: Record<TokenClass, string> = {
   plain: '#EAF0FF',
@@ -25,9 +27,11 @@ interface CodeViewerProps {
   /** line to scroll to and highlight; `nonce` lets the same line be requested again */
   target?: { line: number; nonce: number } | null;
   label?: string;
+  issues?: CodeIssue[];
+  onSelectIssue?: (issue: CodeIssue) => void;
 }
 
-export default function CodeViewer({ code, path, target, label }: CodeViewerProps) {
+export default function CodeViewer({ code, path, target, label, issues, onSelectIssue }: CodeViewerProps) {
   const { editorFontSize, editorTabSpacing, editorWordWrap, editorLineNumbers } = useSettings();
   const lineHeight = Math.max(16, Math.round(editorFontSize * 1.58));
 
@@ -36,6 +40,17 @@ export default function CodeViewer({ code, path, target, label }: CodeViewerProp
   const [scrollTop, setScrollTop] = useState(0);
   const [height, setHeight] = useState(400);
   const [highlight, setHighlight] = useState<number | null>(null);
+
+  const issuesByLine = useMemo(() => {
+    const map = new Map<number, CodeIssue[]>();
+    if (!issues) return map;
+    for (const issue of issues) {
+      const lineNum = issue.line;
+      if (!map.has(lineNum)) map.set(lineNum, []);
+      map.get(lineNum)!.push(issue);
+    }
+    return map;
+  }, [issues]);
 
   useEffect(() => {
     const el = ref.current;
@@ -88,17 +103,53 @@ export default function CodeViewer({ code, path, target, label }: CodeViewerProp
           {lines.slice(first, last).map((tokens, i) => {
             const n = first + i + 1;
             const on = n === highlight;
+            const lineIssues = issuesByLine.get(n);
+            const hasError = lineIssues?.some((iss) => iss.severity === 'error');
+            const hasWarning = lineIssues?.some((iss) => iss.severity === 'warning');
+            const topSeverity = hasError ? 'error' : hasWarning ? 'warning' : lineIssues ? 'info' : null;
+
+            const issueColor =
+              topSeverity === 'error'
+                ? '#EF4444'
+                : topSeverity === 'warning'
+                ? '#F59E0B'
+                : topSeverity === 'info'
+                ? '#3B82F6'
+                : null;
+
+            const lineBg = on
+              ? 'rgba(56, 107, 255, 0.22)'
+              : topSeverity === 'error'
+              ? 'rgba(239, 68, 68, 0.12)'
+              : topSeverity === 'warning'
+              ? 'rgba(245, 158, 11, 0.09)'
+              : topSeverity === 'info'
+              ? 'rgba(59, 130, 246, 0.07)'
+              : undefined;
+
+            const lineBoxShadow = on
+              ? 'inset 3px 0 0 #6898FF'
+              : issueColor
+              ? `inset 3px 0 0 ${issueColor}`
+              : undefined;
+
+            const tooltipText = lineIssues
+              ? lineIssues.map((iss) => `[${iss.severity.toUpperCase()}] ${iss.message}`).join('\n')
+              : undefined;
+
             return (
               <div
                 key={n}
+                title={tooltipText}
                 style={{
                   display: 'flex',
+                  alignItems: 'center',
                   minHeight: lineHeight,
                   height: editorWordWrap ? undefined : lineHeight,
                   whiteSpace: editorWordWrap ? 'pre-wrap' : 'pre',
                   wordBreak: editorWordWrap ? 'break-all' : undefined,
-                  background: on ? 'rgba(56, 107, 255, 0.22)' : undefined,
-                  boxShadow: on ? 'inset 3px 0 0 #6898FF' : undefined,
+                  background: lineBg,
+                  boxShadow: lineBoxShadow,
                 }}
               >
                 {editorLineNumbers && (
@@ -108,15 +159,33 @@ export default function CodeViewer({ code, path, target, label }: CodeViewerProp
                       position: 'sticky',
                       left: 0,
                       flexShrink: 0,
-                      width: `${gutter + 2}ch`,
+                      width: `${gutter + 3}ch`,
                       paddingRight: '1ch',
                       textAlign: 'right',
-                      color: on ? '#EAF0FF' : '#4E5B78',
+                      color: on ? '#EAF0FF' : issueColor ? issueColor : '#4E5B78',
                       background: 'rgba(3, 7, 18, 0.95)',
                       userSelect: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 4,
                     }}
                   >
-                    {n}
+                    {issueColor && (
+                      <span
+                        onClick={() => lineIssues && onSelectIssue?.(lineIssues[0])}
+                        style={{
+                          display: 'inline-block',
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: issueColor,
+                          boxShadow: `0 0 6px ${issueColor}`,
+                          cursor: 'pointer',
+                        }}
+                      />
+                    )}
+                    <span>{n}</span>
                   </span>
                 )}
                 <span style={{ paddingLeft: '1ch', paddingRight: '2ch', flex: 1 }}>

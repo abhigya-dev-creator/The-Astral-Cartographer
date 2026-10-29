@@ -11,15 +11,20 @@ import {
   Package,
   Layers,
   Info,
+  AlertTriangle,
+  CheckCircle,
 } from 'lucide-react';
 import { FileIcon } from './FileIcon';
 import { generateFileSummary } from './explorerSummary';
 import type { ExplorerFileItem } from './explorerTypes';
+import type { CodeIssue } from '../../lib/api';
 
 interface ContextPanelProps {
   currentFile: ExplorerFileItem | null;
   sourceCode: string | null;
   onNavigateToFile: (path: string, line?: number) => void;
+  issues?: CodeIssue[];
+  onSelectLine?: (line: number) => void;
 }
 
 function extractImportedSymbols(sourceCode: string | null): Map<string, string> {
@@ -57,10 +62,13 @@ export function ContextPanel({
   currentFile,
   sourceCode,
   onNavigateToFile,
+  issues = [],
+  onSelectLine,
 }: ContextPanelProps) {
   const [copiedSummary, setCopiedSummary] = useState(false);
   const [depsExpanded, setDepsExpanded] = useState(true);
   const [dependentsExpanded, setDependentsExpanded] = useState(true);
+  const [issuesExpanded, setIssuesExpanded] = useState(true);
 
   // Parse imported symbols for display
   const importedSymbols = useMemo(() => {
@@ -338,6 +346,97 @@ export function ContextPanel({
             <span className="metric-label">Dependencies</span>
           </div>
         </div>
+      </div>
+
+      {/* 5. Code Inspection Card */}
+      <div className="context-card">
+        <div
+          className="context-card-header"
+          onClick={() => setIssuesExpanded(!issuesExpanded)}
+          role="button"
+          tabIndex={0}
+          aria-expanded={issuesExpanded}
+        >
+          <h3 className="context-card-title">
+            <AlertTriangle size={16} color={issues.length > 0 ? '#EF4444' : '#70E8BA'} />
+            Code Inspection ({issues.length})
+          </h3>
+          <span style={{ color: '#77839C' }}>
+            {issuesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </span>
+        </div>
+
+        {issuesExpanded && (
+          <div>
+            {issues.length === 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 4px',
+                  color: '#70E8BA',
+                  fontSize: 12,
+                }}
+              >
+                <CheckCircle size={16} color="#70E8BA" />
+                <span>Clean file — No static AST or security issues detected.</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {issues.slice(0, 10).map((issue) => {
+                  const sevColor =
+                    issue.severity === 'error'
+                      ? '#EF4444'
+                      : issue.severity === 'warning'
+                      ? '#F59E0B'
+                      : '#3B82F6';
+                  return (
+                    <div
+                      key={issue.id}
+                      className="dep-item-row clickable"
+                      onClick={() => onSelectLine?.(issue.line)}
+                      title={`Jump to line ${issue.line}: ${issue.message}`}
+                    >
+                      <div className="dep-item-left" style={{ gap: 8 }}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: '1px 5px',
+                            borderRadius: 4,
+                            background: `${sevColor}22`,
+                            color: sevColor,
+                            border: `1px solid ${sevColor}44`,
+                            flexShrink: 0,
+                          }}
+                        >
+                          L{issue.line}
+                        </span>
+                        <span
+                          className="dep-item-name"
+                          style={{
+                            fontSize: 12,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {issue.message}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+                {issues.length > 10 && (
+                  <div style={{ fontSize: 11, color: '#77839C', padding: '4px 2px' }}>
+                    + {issues.length - 10} more issues in Problems drawer
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

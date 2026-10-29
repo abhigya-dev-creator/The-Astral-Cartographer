@@ -7,6 +7,8 @@ import { assertAuthConfigured } from './middleware/auth.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import repositoryRoutes from './routes/repositoryRoutes.js';
 import pathfinderRoutes from './routes/pathfinderRoutes.js';
+import systemRoutes from './routes/systemRoutes.js';
+import assistantRoutes from './routes/assistantRoutes.js';
 import { RepositoryService } from './services/repositoryService.js';
 import { cleanupOrphanAtlasFiles } from './services/atlas/atlasService.js';
 
@@ -43,6 +45,8 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/repositories', repositoryRoutes);
 app.use('/api/repositories', pathfinderRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/repositories', assistantRoutes);
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found.' }));
 

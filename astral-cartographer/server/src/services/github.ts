@@ -48,6 +48,14 @@ function apiHeaders(accept = 'application/vnd.github+json'): Record<string, stri
   return h;
 }
 
+/** GitHub's current API rate limit for the credentials this server uses (its GITHUB_TOKEN, or anonymous). */
+export async function fetchRateLimit(): Promise<{ authenticated: boolean; limit: number; remaining: number; resetAt: string }> {
+  const { data } = await axios.get('https://api.github.com/rate_limit', { headers: apiHeaders(), timeout: 10_000 });
+  const core = data?.resources?.core ?? data?.rate;
+  if (!core || typeof core.limit !== 'number') throw new Error('GitHub returned an unexpected rate limit response.');
+  return { authenticated: !!process.env.GITHUB_TOKEN, limit: core.limit, remaining: core.remaining, resetAt: new Date(core.reset * 1000).toISOString() };
+}
+
 function rateLimited(err: any): boolean {
   const s = err?.response?.status;
   return s === 429 || (s === 403 && String(err.response.headers?.['x-ratelimit-remaining']) === '0');

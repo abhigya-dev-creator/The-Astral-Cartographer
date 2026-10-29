@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { useSettings } from '../context/settingsStore';
 
 /*
  * Types mirror the analysis server contract. Fields introduced by the upgraded
@@ -120,6 +121,53 @@ export interface IArchitecturalIssue {
   rule: string;
 }
 
+export type CodeIssueSeverity = 'error' | 'warning' | 'info';
+export type CodeIssueConfidence = 'confirmed' | 'heuristic';
+export type CodeIssueCategory =
+  | 'unused_or_unreachable'
+  | 'null_undefined'
+  | 'division_by_zero'
+  | 'suspicious_loop'
+  | 'logical_error'
+  | 'resource_management'
+  | 'security'
+  | 'ai_detected';
+
+export interface CodeIssue {
+  id: string;
+  ruleId: string;
+  ruleName: string;
+  category: CodeIssueCategory;
+  severity: CodeIssueSeverity;
+  confidence: CodeIssueConfidence;
+  file: string;
+  line: number;
+  column?: number;
+  endLine?: number;
+  endColumn?: number;
+  message: string;
+  explanation: string;
+  suggestedFix?: string;
+  codeSnippet?: string;
+}
+
+export interface CodeInspectionSummary {
+  total: number;
+  errors: number;
+  warnings: number;
+  info: number;
+  confirmed: number;
+  heuristic: number;
+  byCategory: Record<CodeIssueCategory, number>;
+}
+
+export interface CodeInspectionResult {
+  file: string;
+  issues: CodeIssue[];
+  summary: CodeInspectionSummary;
+  durationMs: number;
+}
+
 export interface IDependencyEdge {
   source: string;
   target: string;
@@ -148,10 +196,17 @@ export interface AnalysisDetails extends AnalysisSummary {
     path: string;
     extension: string;
     size: number;
-    functionCount: number;
+    functionCount: number | null;
     dependencies: string[];
+    /** stored by the analyzer; optional for older analyses */
+    lineCount?: number;
+    language?: string;
+    isTest?: boolean;
+    parseStatus?: string;
   }>;
   issues: IArchitecturalIssue[];
+  codeIssues?: CodeIssue[];
+  codeIssuesSummary?: CodeInspectionSummary;
   dependencyGraph: IDependencyEdge[];
 }
 
@@ -183,7 +238,55 @@ export interface RepositoryDetails {
   repository: RepositorySummary;
   latestAnalysis: AnalysisDetails | null;
   /** Newest runs first, including failed ones */
-  analysisHistory: Array<Partial<AnalysisSummary> & { status?: AnalysisStatus; errorMessage?: string }>;
+  analysisHistory: AnalysisHistoryEntry[];
+}
+
+/** One past analysis run as returned in RepositoryDetails.analysisHistory (a light projection). */
+export interface AnalysisHistoryEntry {
+  _id?: string;
+  status?: AnalysisStatus;
+  errorMessage?: string;
+  commitSha?: string | null;
+  branch?: string | null;
+  analyzerVersion?: string;
+  createdAt?: string;
+  metrics?: {
+    totalFiles?: number;
+    totalLines?: number;
+    functions?: number | null;
+    dependencies?: number | null;
+    architecturalIssues?: number;
+    coverage?: { analyzedCodeFiles?: number };
+  };
+  /** severity and type of each finding (newer servers only) */
+  issues?: Array<Pick<IArchitecturalIssue, 'type' | 'severity'>>;
+}
+
+/** GET /api/system/info */
+export interface SystemInfo {
+  analyzerVersion: string;
+  database: 'persistent' | 'in-memory' | 'disconnected';
+  githubTokenConfigured: boolean;
+  limits: {
+    maxFiles: number;
+    maxParseBytes: number;
+    analysisTimeBudgetMs: number;
+    maxMapFileBytes: number;
+    maxGithubArchiveBytes: number;
+    maxZipUploadBytes: number;
+    maxArchiveEntries: number;
+    maxExcludePatterns: number;
+  };
+  alwaysSkippedFolders: string[];
+  languages: Array<{ name: string; extensions: string[]; functions: string; dependencies: string }>;
+}
+
+/** GET /api/system/github */
+export interface GitHubRateLimit {
+  authenticated: boolean;
+  limit: number;
+  remaining: number;
+  resetAt: string;
 }
 
 export interface RepositoryStatus {
@@ -305,12 +408,13 @@ export const api = {
    * force=true re-runs the analysis even if this commit was analyzed before.
    */
   async analyzeGitHub(url: string, force = false): Promise<AnalyzeResult> {
+    const exclude = useSettings.getState().excludedPatterns;
     const data = await request<any>(
       '/api/repositories/analyze-github',
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(force ? { url, force: true } : { url }),
+        body: JSON.stringify({ url, ...(force ? { force: true } : {}), ...(exclude.length ? { exclude } : {}) }),
       },
       'Analysis failed'
     );
@@ -329,9 +433,201 @@ export const api = {
     if (force) {
       formData.append('force', 'true');
     }
+    const exclude = useSettings.getState().excludedPatterns;
+    if (exclude.length) {
+      formData.append('exclude', JSON.stringify(exclude));
+    }
 
     // Note: browser automatically sets the multipart/form-data boundary
     const data = await request<any>('/api/repositories/analyze-zip', { method: 'POST', body: formData }, 'ZIP analysis failed');
     return normalizeAnalyzeResult(data);
   },
+
+  /**
+   * Delete a repository with all its analyses, stored maps and saved Pathfinder progress.
+   */
+  async deleteRepository(id: string): Promise<void> {
+    await request<unknown>(`/api/repositories/${encodeURIComponent(id)}`, { method: 'DELETE' }, 'Failed to delete repository');
+  },
+
+  /**
+   * The server's real analysis limits, always-skipped folders and language support
+   */
+  async getSystemInfo(): Promise<SystemInfo> {
+    return request<SystemInfo>('/api/system/info', {}, 'Failed to load server information');
+  },
+
+  /**
+   * GitHub's current rate limit for the credentials the server uses when importing
+   */
+  async getGitHubRateLimit(): Promise<GitHubRateLimit> {
+    return request<GitHubRateLimit>('/api/system/github', {}, 'Failed to check the GitHub rate limit');
+  },
+
+  /**
+   * Ask the AI companion (Groq on the server). Throws ApiError 503 when the server has no AI key.
+   */
+  async askAssistant(id: string, body: { question: string; path?: string | null; context?: string; history?: Array<{ role: 'user' | 'assistant'; content: string }> }): Promise<{ answer: string; model?: string; usedFiles: string[] }> {
+    return request(`/api/repositories/${encodeURIComponent(id)}/assistant`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }, 'The AI assistant could not answer');
+  },
+
+  /**
+   * Run intelligent bug detection on raw source code snippet
+   */
+  async inspectSnippet(code: string, path = 'snippet.ts'): Promise<CodeInspectionResult> {
+    const res = await request<{ ok: boolean; result: CodeInspectionResult }>(
+      '/api/repositories/inspect-snippet',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, path }),
+      },
+      'Inspection failed'
+    );
+    return res.result;
+  },
+
+  /**
+   * Run intelligent bug detection on a specific repository file
+   */
+  async inspectFile(repoId: string, path: string, code?: string): Promise<CodeInspectionResult> {
+    const res = await request<{ ok: boolean; result: CodeInspectionResult }>(
+      `/api/repositories/${encodeURIComponent(repoId)}/inspect-file`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path, ...(code ? { code } : {}) }),
+      },
+      'File inspection failed'
+    );
+    return res.result;
+  },
+
+  /**
+   * Fetch dynamically generated repository-aware learning roadmap
+   */
+  async getLearningRoadmap(repoId: string): Promise<{ success: boolean; commitSha: string; roadmap: DynamicRoadmapResult }> {
+    return request(
+      `/api/repositories/${encodeURIComponent(repoId)}/learning-roadmap`,
+      {},
+      'Failed to load learning roadmap'
+    );
+  },
+
+  /**
+   * Fetch 7-section structured explanation for a specific file
+   */
+  async getFileExplanation(repoId: string, filePath: string, forceAi = false): Promise<{ success: boolean; source: string; explanation: FileExplanation }> {
+    return request(
+      `/api/repositories/${encodeURIComponent(repoId)}/file-explanation`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filePath, forceAi }),
+      },
+      'Failed to generate file explanation'
+    );
+  },
 };
+
+export interface DynamicLearningFile {
+  path: string;
+  name: string;
+  ext: string;
+  folder: string;
+  lines: number;
+  size: number;
+  language: string;
+  stageId: number;
+  stageName: string;
+  rank: number;
+  importance: 'Critical' | 'High' | 'Medium' | 'Supporting';
+  rationale: string;
+  fanIn: number;
+  fanOut: number;
+  prerequisites: Array<{ path: string; name: string; line?: number; reason: string }>;
+  dependents: Array<{ path: string; name: string; line?: number }>;
+  externalPackages: string[];
+  functions: Array<{ name: string; line: number; kind: string }>;
+  exports: string[];
+  complexity?: number;
+  inCycle: boolean;
+}
+
+export interface LearningStage {
+  id: number;
+  name: string;
+  description: string;
+  color: string;
+  files: DynamicLearningFile[];
+}
+
+export interface DynamicRoadmapResult {
+  repositoryName: string;
+  totalAnalyzedFiles: number;
+  learningFilesCount: number;
+  stages: LearningStage[];
+  entryPointsCount: number;
+  languages: string[];
+  metrics: {
+    totalDependencies: number;
+    cyclicFilesCount: number;
+  };
+}
+
+export interface FileExplanation {
+  filePath: string;
+  overview: {
+    purpose: string;
+    whyExists: string;
+    tier: string;
+    linesOfCode: number;
+    primaryLanguage: string;
+    exportCount: number;
+    functionCount: number;
+  };
+  codeWalkthrough: Array<{
+    sectionTitle: string;
+    startLine: number;
+    endLine?: number;
+    description: string;
+    keyItems: string[];
+  }>;
+  executionFlow: {
+    incomingCallers: Array<{
+      callerPath: string;
+      line: number;
+      description: string;
+      status: 'confirmed_import' | 'inferred';
+    }>;
+    outgoingCalls: Array<{
+      targetPath: string;
+      line: number;
+      description: string;
+      status: 'confirmed_import' | 'inferred';
+    }>;
+    lifecycleSummary: string;
+  };
+  dependencies: {
+    internal: Array<{ path: string; relation: 'imports' | 'imported_by'; line?: number }>;
+    external: string[];
+    dependencyHealth: 'healthy' | 'cyclic' | 'high_coupling';
+  };
+  architecturalRole: {
+    layer: string;
+    connectivityScore: number;
+    systemImpact: string;
+  };
+  keyConcepts: Array<{
+    concept: string;
+    explanation: string;
+    contextInCode: string;
+  }>;
+  learningCheck: Array<{
+    id: string;
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+  }>;
+}

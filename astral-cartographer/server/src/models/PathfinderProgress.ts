@@ -10,6 +10,8 @@ export interface IPathfinderProgress extends Document {
   current: string | null;
   /** ids of saved contribution opportunities */
   saved: string[];
+  commitSha?: string;
+  explanations?: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,6 +23,8 @@ const PathfinderProgressSchema = new Schema<IPathfinderProgress>(
     completed: { type: [String], default: [] },
     current: { type: String, default: null },
     saved: { type: [String], default: [] },
+    commitSha: { type: String, default: null },
+    explanations: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true }
 );

@@ -7,12 +7,15 @@ import {
   Plus,
   Code2,
   AlertCircle,
+  AlertTriangle,
   FileCode,
   FolderOpen,
 } from 'lucide-react';
 import { FileIcon } from './FileIcon';
 import CodeViewer from '../../components/CodeViewer';
+import { ProblemsPanel } from './ProblemsPanel';
 import type { ExplorerTab, ExplorerFileItem } from './explorerTypes';
+import type { CodeIssue } from '../../lib/api';
 
 interface SourceViewerPanelProps {
   tabs: ExplorerTab[];
@@ -28,6 +31,13 @@ interface SourceViewerPanelProps {
   onToggleFullscreen: () => void;
   targetLine?: number | null;
   targetNonce?: number;
+  issues?: CodeIssue[];
+  isLoadingIssues?: boolean;
+  isAiInspecting?: boolean;
+  onSelectIssue?: (issue: CodeIssue) => void;
+  onRunAiInspection?: () => void;
+  isProblemsOpen?: boolean;
+  onToggleProblems?: () => void;
 }
 
 export function SourceViewerPanel({
@@ -44,6 +54,13 @@ export function SourceViewerPanel({
   onToggleFullscreen,
   targetLine,
   targetNonce = 0,
+  issues = [],
+  isLoadingIssues = false,
+  isAiInspecting = false,
+  onSelectIssue,
+  onRunAiInspection,
+  isProblemsOpen = false,
+  onToggleProblems,
 }: SourceViewerPanelProps) {
   const [copied, setCopied] = useState(false);
 
@@ -168,6 +185,29 @@ export function SourceViewerPanel({
             <button
               type="button"
               className="viewer-icon-btn"
+              onClick={onToggleProblems}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '3px 8px',
+                width: 'auto',
+                borderRadius: 6,
+                background: issues.length > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                border: issues.length > 0 ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
+                color: issues.length > 0 ? '#F87171' : '#A7B4CC',
+                cursor: 'pointer',
+              }}
+              title={isProblemsOpen ? 'Collapse Problems drawer' : 'Expand Problems drawer'}
+              aria-label="Toggle Problems drawer"
+            >
+              <AlertTriangle size={13} color={issues.length > 0 ? '#EF4444' : '#A7B4CC'} />
+              <span style={{ fontSize: 11, fontWeight: 600 }}>Problems ({issues.length})</span>
+            </button>
+
+            <button
+              type="button"
+              className="viewer-icon-btn"
               onClick={handleCopy}
               disabled={!sourceCode}
               title={copied ? 'Copied!' : 'Copy source code'}
@@ -270,12 +310,29 @@ export function SourceViewerPanel({
             </div>
           </div>
         ) : sourceCode !== null ? (
-          <div style={{ flex: 1, minHeight: 0, padding: 8 }}>
-            <CodeViewer
-              code={sourceCode}
-              path={currentFile.path}
-              target={targetLine ? { line: targetLine, nonce: targetNonce } : null}
-              label={`Source of ${currentFile.path}`}
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, minHeight: 0, padding: 8 }}>
+              <CodeViewer
+                code={sourceCode}
+                path={currentFile.path}
+                target={targetLine ? { line: targetLine, nonce: targetNonce } : null}
+                label={`Source of ${currentFile.path}`}
+                issues={issues}
+                onSelectIssue={onSelectIssue}
+              />
+            </div>
+            <ProblemsPanel
+              issues={issues}
+              activeFilePath={currentFile.path}
+              isLoading={isLoadingIssues}
+              isAiLoading={isAiInspecting}
+              isOpen={isProblemsOpen}
+              onToggleOpen={() => onToggleProblems?.()}
+              onSelectLine={(line) => {
+                const issue = issues.find((i) => i.line === line);
+                if (issue && onSelectIssue) onSelectIssue(issue);
+              }}
+              onRunAiInspection={onRunAiInspection}
             />
           </div>
         ) : (

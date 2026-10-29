@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Bot, Info, SendHorizontal, Sparkles } from 'lucide-react';
-import { AI_NOT_CONNECTED, type Answer, type ChatMessage, type Suggestion } from './companionAnswers';
+import { type Answer, type ChatMessage, type Suggestion } from './companionAnswers';
 
 interface Props {
   title: string;
@@ -39,7 +39,7 @@ export default function Companion({ title, intro, messages, suggestions, onAsk, 
           <p className="pf-muted pf-small">{intro}</p>
         </div>
       </header>
-      <p className="pf-companion-mode" role="note"><Info size={13} aria-hidden="true" /> {AI_NOT_CONNECTED}</p>
+      <p className="pf-companion-mode" role="note"><Info size={13} aria-hidden="true" /> Answers use AI (Groq) with the selected file, its related files and the analysis when the server has a GROQ_API_KEY; otherwise they come from the analysis only.</p>
 
       <div className="pf-suggestions" role="group" aria-label="Suggested questions">
         {suggestions.map((s) => (
@@ -67,7 +67,11 @@ export default function Companion({ title, intro, messages, suggestions, onAsk, 
 function AnswerView({ answer, onOpenFile }: { answer: Answer; onOpenFile: (path: string, line?: number) => void }) {
   return (
     <div className={`pf-msg is-answer${answer.kind === 'limit' ? ' is-limit' : ''}`}>
-      <span className="pf-msg-source">{answer.kind === 'limit' ? 'Not available' : 'From the repository analysis · not AI-generated'}</span>
+      <span className="pf-msg-source">{answer.kind === 'ai' ? 'AI answer · check it against the code' : answer.kind === 'limit' ? 'Not available' : 'From the repository analysis · not AI-generated'}</span>
+      {answer.kind === 'ai' && <AiText text={answer.text ?? ''} />}
+      {answer.kind === 'ai' && !!answer.usedFiles?.length && (
+        <div className="pf-msg-links">{answer.usedFiles.map((p) => <button key={p} type="button" className="pf-link-chip" onClick={() => onOpenFile(p)} title={`Open ${p}`}>{p.slice(p.lastIndexOf('/') + 1)}</button>)}</div>
+      )}
       {answer.title && <strong className="pf-msg-title">{answer.title}</strong>}
       {answer.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
       {answer.bullets && answer.bullets.length > 0 && <ul>{answer.bullets.map((b, i) => <li key={i}>{b}</li>)}</ul>}
@@ -81,5 +85,21 @@ function AnswerView({ answer, onOpenFile }: { answer: Answer; onOpenFile: (path:
         </div>
       )}
     </div>
+  );
+}
+
+/** Minimal Markdown for AI answers: code blocks, bullet lists and paragraphs (rendered as text, never as HTML). */
+function AiText({ text }: { text: string }) {
+  // odd parts are the insides of ``` code fences
+  const blocks = text.split(/```[\w-]*\n?/);
+  const bullet = /^\s*([-*]|\d+\.)\s+/;
+  return (
+    <>
+      {blocks.map((b, i) => i % 2 === 1
+        ? <pre key={i} className="pf-ai-code">{b.replace(/\n$/, '')}</pre>
+        : b.split(/\n{2,}/).filter((p) => p.trim()).map((p, j) => bullet.test(p)
+          ? <ul key={`${i}-${j}`}>{p.split('\n').filter((l) => l.trim()).map((l, k) => <li key={k}>{l.replace(bullet, '').replace(/\*\*/g, '')}</li>)}</ul>
+          : <p key={`${i}-${j}`} style={{ whiteSpace: 'pre-wrap' }}>{p.replace(/\*\*/g, '')}</p>))}
+    </>
   );
 }
